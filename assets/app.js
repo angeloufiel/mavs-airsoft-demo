@@ -198,7 +198,7 @@
     renderDesc(p);
     const vids = videosFor(p);
     $('#mVideos').hidden = !vids.length;
-    $('#mVideos').innerHTML = vids.length ? `<h4>🎬 Related video${vids.length > 1 ? 's' : ''} from Mavs Airsoft</h4><div class="m-vlist">${vids.map(vidCard).join('')}</div>` : '';
+    $('#mVideos').innerHTML = vids.length ? `<h4>🎬 Related video${vids.length > 1 ? 's' : ''} from Mavs Airsoft</h4><div class="m-vlist">${vids.map(v => vidCard(v, 0)).join('')}</div>` : '';
     $('#mBrand').textContent = p.b || p.c;
     $('#mName').textContent = p.n;
     $('#mPrice').textContent = p.p == null ? 'Ask for price' : peso(p.p);
@@ -219,15 +219,15 @@
   const VIDS = window.VIDEOS || [];
   const vidById = Object.fromEntries(VIDS.map(v => [v.id, v]));
   const ytThumb = id => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
-  const vidCard = v => `<button class="yt-card" data-video="${v.id}" aria-label="Play: ${esc(v.t)}">
-      <span class="yt-thumb"><img src="${ytThumb(v.id)}" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="yt-play">▶</span></span>
+  const vidCard = (v, i = 9) => `<button class="yt-card" data-video="${v.id}" aria-label="Play: ${esc(v.t)}">
+      <span class="yt-thumb"><img src="${ytThumb(v.id)}" alt="" loading="${i < 4 ? 'eager' : 'lazy'}" referrerpolicy="no-referrer"><span class="yt-play">▶</span></span>
       <span class="yt-title">${esc(v.t)}</span></button>`;
   function videosFor(p) {
     const key = `${p.b}|${p.c}|${p.n}`, ids = [];
     for (const [re, list] of (window.PRODUCT_VIDEOS || [])) if (re.test(key)) list.forEach(id => { if (!ids.includes(id) && vidById[id]) ids.push(id); });
     return ids.slice(0, 3).map(id => vidById[id]);
   }
-  function renderVideoRow() { $('#ytRow').innerHTML = VIDS.slice(0, 10).map(vidCard).join(''); }
+  function renderVideoRow() { $('#ytRow').innerHTML = VIDS.slice(0, 10).map((v, i) => vidCard(v, i)).join(''); }
   function playVideo(id) {
     const v = vidById[id]; if (!v) return;
     $('#vFrame').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1" title="${esc(v.t)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
