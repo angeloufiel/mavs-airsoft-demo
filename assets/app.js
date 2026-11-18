@@ -100,7 +100,7 @@
       if (state.stock && !inStock(p)) return false;
       if (state.min !== '' && (p.p ?? 0) < +state.min) return false;
       if (state.max !== '' && (p.p ?? Infinity) > +state.max) return false;
-      if (q.length) { const hay = `${p.n} ${p.b} ${p.c}`.toLowerCase(); if (!q.every(w => hay.includes(w))) return false; }
+      if (q.length) { const hay = `${p.n} ${p.b} ${p.c} ${describeProduct(p).tag}`.toLowerCase(); if (!q.every(w => hay.includes(w))) return false; }
       return true;
     });
     const priceKey = p => p.p ?? Infinity;
@@ -120,6 +120,7 @@
       <div class="card-body">
         <span class="brand">${esc(p.b || p.c)}</span>
         <span class="pname">${esc(p.n)}</span>
+        <span class="ptag">${esc(describeProduct(p).tag)}</span>
         <span class="price ${p.p == null ? 'na' : ''}">${p.p == null ? 'Ask for price' : peso(p.p)}</span>
       </div>
       <div class="card-act"><button class="btn ${out ? 'btn-ghost' : 'btn-red'} btn-sm" data-add="${p.id}" ${out ? 'disabled' : ''}>${out ? 'Sold out' : 'Add to cart'}</button></div>
@@ -134,6 +135,8 @@
     $('#resultCount').textContent = `${list.length} item${list.length === 1 ? '' : 's'}`;
     $('#loadMore').hidden = list.length <= state.limit;
     $$('.chip').forEach(c => c.classList.toggle('active', c.dataset.cat === state.cat));
+    const n = [state.brand, state.min, state.max, state.stock, state.sort !== 'featured'].filter(Boolean).length;
+    $('#filterCount').textContent = n ? `(${n})` : '';
   }
 
   function renderChips() {
@@ -180,6 +183,10 @@
     $('#search').value = ''; $('#fBrand').value = ''; $('#fMin').value = ''; $('#fMax').value = ''; $('#fStock').checked = false; $('#fSort').value = 'featured';
     renderShop();
   };
+  $('#filtersToggle').onclick = () => {
+    const open = $('#filters').classList.toggle('open');
+    $('#filtersToggle').setAttribute('aria-expanded', open);
+  };
   $('#loadMore').onclick = () => { state.limit += 24; renderShop(); };
 
   // ---------- product modal ----------
@@ -187,8 +194,8 @@
   function openProduct(id) {
     const p = byId[id]; if (!p) return;
     modalP = p; modalQty = 1;
-    const m = $('#mImg'); m.dataset.id = p.img; m.dataset.w = 1000; delete m.dataset.tried;
-    m.onerror = () => __imgFail(m); m.src = img(p.img, 1000); m.alt = p.n;
+    viewer.load(p);
+    renderDesc(p);
     $('#mBrand').textContent = p.b || p.c;
     $('#mName').textContent = p.n;
     $('#mPrice').textContent = p.p == null ? 'Ask for price' : peso(p.p);
@@ -203,7 +210,71 @@
     $('#modal').hidden = false; document.body.style.overflow = 'hidden';
     $('.modal-card').scrollTop = 0;
   }
-  const closeModal = () => { $('#modal').hidden = true; document.body.style.overflow = ''; };
+  const closeModal = () => { $('#modal').hidden = true; document.body.style.overflow = ''; viewer.stop(); };
+
+  // ---------- description panel ----------
+  function renderDesc(p) {
+    const d = describeProduct(p);
+    $('#mDesc').innerHTML = `
+      <h4 class="desc-tag">${esc(d.tag)}</h4>
+      <p>${esc(d.text)}</p>
+      ${d.points.length ? `<ul class="desc-points">${d.points.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+      ${d.brand ? `<p class="desc-brand"><b>About ${esc(p.b)}:</b> ${esc(d.brand)}</p>` : ''}
+      <p class="desc-note">${d.specific ? 'Based on the manufacturer\'s published features.' : 'General overview.'} Exact FPS and specs can vary per unit/version, so confirm with Mavs before buying.</p>`;
+  }
+
+  // ---------- image viewer: zoom, pan, auto-motion, optional 360° ----------
+  // 360°: if a product has  spin: ['driveId1', 'driveId2', ...]  (24–36 turntable photos),
+  // dragging left/right rotates through the frames. Without it, drag pans the zoomed photo.
+  const viewer = (() => {
+    const stage = $('#vStage'), im = $('#mImg');
+    let s = 1, x = 0, y = 0, frames = null, frame = 0, motion = null, pointers = new Map(), last = null, pinch0 = null;
+    const apply = () => { im.style.transform = `translate(${x}px, ${y}px) scale(${s})`; };
+    const clamp = () => {
+      const r = stage.getBoundingClientRect(), mx = (r.width * (s - 1)) / 2, my = (r.height * (s - 1)) / 2;
+      x = Math.max(-mx, Math.min(mx, x)); y = Math.max(-my, Math.min(my, y));
+    };
+    const zoom = (f) => { s = Math.max(1, Math.min(4, s * f)); if (s === 1) { x = 0; y = 0; } clamp(); apply(); };
+    const reset = () => { s = 1; x = 0; y = 0; apply(); };
+    const setSrc = (id) => { im.dataset.id = id; im.dataset.w = 1200; delete im.dataset.tried; im.onerror = () => __imgFail(im); im.src = img(id, 1200); };
+    function stop() { if (motion) cancelAnimationFrame(motion); motion = null; $('#vMotion').setAttribute('aria-pressed', 'false'); $('#vMotion').textContent = '▶ Motion'; }
+    function start() {
+      stop(); $('#vMotion').setAttribute('aria-pressed', 'true'); $('#vMotion').textContent = '❚❚ Motion';
+      const t0 = performance.now();
+      const tick = (t) => {
+        const k = (t - t0) / 1000;
+        if (frames) { frame = Math.floor(k * 10) % frames.length; setSrc(frames[frame]); }
+        else { s = 1.6; const r = stage.getBoundingClientRect(); x = Math.sin(k * 0.6) * r.width * 0.3; y = Math.sin(k * 0.9) * r.height * 0.12; clamp(); apply(); }
+        motion = requestAnimationFrame(tick);
+      };
+      motion = requestAnimationFrame(tick);
+    }
+    function load(p) {
+      stop(); reset(); frames = Array.isArray(p.spin) && p.spin.length > 1 ? p.spin : null; frame = 0;
+      setSrc(frames ? frames[0] : p.img); im.alt = p.n;
+      $('#v360').hidden = !frames;
+      $('#vHint').textContent = frames ? 'Drag left/right to rotate 360° · scroll or pinch to zoom' : 'Scroll or pinch to zoom · drag to look around · double-click to zoom';
+    }
+    stage.addEventListener('wheel', e => { e.preventDefault(); stop(); zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15); }, { passive: false });
+    stage.addEventListener('dblclick', () => { stop(); s > 1 ? reset() : zoom(2.2); });
+    stage.addEventListener('pointerdown', e => { stop(); stage.setPointerCapture(e.pointerId); pointers.set(e.pointerId, [e.clientX, e.clientY]); last = [e.clientX, e.clientY];
+      if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch0 = [Math.hypot(a[0] - b[0], a[1] - b[1]), s]; } });
+    stage.addEventListener('pointermove', e => {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, [e.clientX, e.clientY]);
+      if (pointers.size === 2 && pinch0) { const [a, b] = [...pointers.values()]; s = Math.max(1, Math.min(4, pinch0[1] * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch0[0])); clamp(); apply(); return; }
+      const dx = e.clientX - last[0], dy = e.clientY - last[1]; last = [e.clientX, e.clientY];
+      if (frames && s === 1) { if (Math.abs(dx) >= 1) { frame = (frame + (dx > 0 ? -1 : 1) + frames.length) % frames.length; setSrc(frames[frame]); } return; }
+      if (s > 1) { x += dx; y += dy; clamp(); apply(); }
+    });
+    const up = e => { pointers.delete(e.pointerId); if (pointers.size < 2) pinch0 = null; };
+    stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
+    $('#vIn').onclick = () => { stop(); zoom(1.4); };
+    $('#vOut').onclick = () => { stop(); zoom(1 / 1.4); };
+    $('#vReset').onclick = () => { stop(); reset(); };
+    $('#vMotion').onclick = () => { motion ? (stop(), reset()) : start(); };
+    return { load, stop };
+  })();
   $$('[data-close]').forEach(b => b.onclick = closeModal);
   $('#mPlus').onclick = () => { modalQty = Math.min(modalQty + 1, 20); $('#mQty').textContent = modalQty; };
   $('#mMinus').onclick = () => { modalQty = Math.max(modalQty - 1, 1); $('#mQty').textContent = modalQty; };

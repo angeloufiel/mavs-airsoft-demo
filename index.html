@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=2">
+  <link rel="stylesheet" href="assets/style.css?v=3">
 </head>
 <body>
 
@@ -66,6 +66,7 @@
         <div class="chips" id="chips" role="tablist" aria-label="Categories"></div>
 
         <div class="shop-grid">
+          <button class="filters-toggle" id="filtersToggle" aria-expanded="false" aria-controls="filters">⚙ Filters &amp; sort <span id="filterCount"></span></button>
           <aside class="filters" id="filters">
             <h3>Filters</h3>
             <label class="f-label" for="fBrand">Brand / type</label>
@@ -231,7 +232,17 @@
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mName">
       <button class="modal-x" data-close aria-label="Close">✕</button>
       <div class="modal-grid">
-        <div class="modal-img"><img id="mImg" alt="" referrerpolicy="no-referrer"></div>
+        <div class="viewer" id="viewer">
+          <div class="viewer-stage" id="vStage"><img id="mImg" alt="" referrerpolicy="no-referrer" draggable="false"></div>
+          <span class="badge-360" id="v360" hidden>360°</span>
+          <div class="viewer-tools">
+            <button id="vOut" aria-label="Zoom out">−</button>
+            <button id="vIn" aria-label="Zoom in">+</button>
+            <button id="vReset" aria-label="Reset view">⟲</button>
+            <button id="vMotion" aria-pressed="false" title="Auto motion">▶ Motion</button>
+          </div>
+          <p class="viewer-hint" id="vHint">Scroll or pinch to zoom · drag to look around · double-click to zoom</p>
+        </div>
         <div class="modal-info">
           <p class="eyebrow" id="mBrand"></p>
           <h2 id="mName"></h2>
@@ -242,6 +253,7 @@
             <button class="btn btn-red" id="mAdd">Add to cart</button>
           </div>
           <button class="btn btn-ghost btn-sm" id="mAsk">Copy inquiry for Messenger</button>
+          <div class="desc" id="mDesc"></div>
           <p class="muted small">Category: <span id="mCat"></span></p>
           <h4 class="rel-title">More from this brand</h4>
           <div class="related" id="mRelated"></div>
@@ -265,7 +277,8 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="assets/products.js?v=2"></script>
-  <script src="assets/app.js?v=2"></script>
+  <script src="assets/products.js?v=3"></script>
+  <script src="assets/descriptions.js?v=3"></script>
+  <script src="assets/app.js?v=3"></script>
 </body>
 </html>
