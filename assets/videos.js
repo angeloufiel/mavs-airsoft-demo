@@ -1,0 +1,64 @@
+/* Mavs Airsoft Ph — YouTube (@mavsairsoft) latest uploads, pulled Nov 2026.
+ * In the full system this list updates automatically from the channel (YouTube RSS/API).
+ * PRODUCT_VIDEOS maps products → videos where that model/brand is featured.
+ */
+window.CHANNEL_URL = 'https://www.youtube.com/@mavsairsoft/videos';
+window.VIDEOS = [
+  ['7UX12SExnMs', 'ASCEND DEADPOOL 17 & ACTION ARMY AAP01C SHINOBI'],
+  ['oa8VaIary6I', 'WE SAMURAI EDGE STANDARD VER, VIRUS'],
+  ['FnxNv0-7gZQ', 'EMG TTI SAND VIPER & PIT VIPER JW4 PISTOL'],
+  ['STfq4XzcGBY', 'NOVRITSCH SSP28, TOKYO MARUI D.O.R. & STARK ARMS SA320'],
+  ['M8iqPkK6Gdc', 'KJW KP24 1911 GBB PISTOL'],
+  ['s0LBz5VjuDc', 'EMG STACCATO CS COMPACT 2011 GBB PISTOLS'],
+  ['_Gz1EzUm7Dk', 'SRC BABAYAGA B, NIGHT VIPER & BABAYAGA EXS | DUAL POWER PISTOL, PRE UPGRADED OOTB'],
+  ['A80EHE9UVSE', 'E&C RIFLES! 620DE, 603WBSE, M16 RIFLES w/ GRENADE LAUNCHER! LE GO!'],
+  ['HFR0ckZ8fQM', 'UMAREX, KROWNLAND 4.5MM PISTOL & RIFLES! LE GO!'],
+  ['rxJukPaMaQA', 'POSEIDON SQB & SCORPIO | UMAREX VFC HK416A5 V4 with NPAS! LE GO!'],
+  ['z7Kcp39D-Os', 'EMG MK18 9" DANIEL DEFENSE GAS BLOWBACK RIFLE! LET GOW!!'],
+  ['wwrRQOl3rv4', 'TOKYO MARUI x SNA PISTOLS!! TM UPGRADE OOTB'],
+  ['QOXZsZkcyYM', 'VLOG #33 2026 | CAA RIFLES, KING ARMS SPORTLINE & WE D.EAGLE BLAZE!!'],
+  ['NRp2jYLmonw', 'VLOG #32 2026 | RAVEN RIFLES (NEO) PART 2, LMG46 LMG249. LETS GO!!'],
+  ['rO__NJ2PXuI', 'VLOG #31 2026 | RAVEN EVO RIFLES! LETS GOW!!'],
+  ['AVPIDMFXoDE', 'VLOG #30 2026 | BUDGET RIFLES! G! SULIT NA SULIT!'],
+  ['JU6WjVlSw_o', 'SHORT VID | UMAREX SRC G19 MOS G5 CO2, SRC G17 G5 MOS, SRC G19X MOS FDE'],
+  ['5Ahe9WiAeHI', 'VLOG #29 2026 | BOLT ELECTRIC BLOWBACK RIFLE! MP5SD, MP5, MP5A4, MK18, RIS!'],
+  ['xvNvcsLgAYw', 'VLOG #28 2026 | POSEIDON THESEUS, BUDGET RIFLE 450FPS OOTB! & KIZUNA WORKS BASILISK BSK43'],
+  ['dHfMDkICvoQ', 'SHORT VID | HK3 G34 TTI (SAI) BRONZE & BLACK, NAKASALE MGA BOSS!'],
+  ['gxZnmvVoHjY', 'SHORT VID | WE GALAXY GBB FULL AUTO! NAKASALE MGA BOSS!'],
+  ['NYeVCc-k5cs', 'VLOG #27 2026 | E&C & WE RIFLES! 307, 105, 314 AEG RIFLES! RAPTOR R5C'],
+  ['FTg6jvjl3Jc', 'VLOG #26 | WE GBB RIFLES, VFC MK16 URGI 14.5", WE GALAXY (SALE)'],
+  ['62MrJSDEw44', 'VLOG #25 2026 | G&G 1911, VFC TR9 GBBR, VORSK HICAPA/GSERIES, CANIK SFX RIVAL, TMxSNA PISTOL'],
+  ['QPq1OryZmMw', 'VLOG #24 2026 | CYMA x EMG DD/SI/SAI (CGS) MWS COMPATIBLE, VORSK VMP-IX GBB RIFLES'],
+  ['DhnPrt7sfDQ', 'VLOG #23 2026 | ICS TR9, GHK HK416A5 CERAKOTE, HK3 G34 (WE G17 SYSTEM)'],
+  ['lOo1fFc3ujc', 'VLOG #22 2026 | E&C, LANCER TACTICAL, WE GBB, G&G RIFLES! MGA MADALAS TINATANONG NA RIFLES'],
+  ['8EnUrQJsEMQ', 'SHORT VIDEO | 3D PRINTED PISTOL MOUNT'],
+  ['DJtXRSfNsVk', 'SHORT VIDEO | FMG9 WITH AGENT TRACER'],
+  ['xm9UluztDeE', 'VLOG #21 2026 | PART 2 ARMY ARMAMENT GBB PISTOLS - STACCATO 2011']
+].map(([id, t]) => ({ id, t }));
+
+/* Rules: tested against "BRAND|CATEGORY|NAME" of each product. First rules are model-specific. */
+window.PRODUCT_VIDEOS = [
+  [/AAP01/, ['7UX12SExnMs']],
+  [/SAND VIPER|PIT VIPER/, ['FnxNv0-7gZQ']],
+  [/STACCATO/, ['s0LBz5VjuDc', 'xm9UluztDeE']],
+  [/BABAYAGA|BBYAGA/, ['_Gz1EzUm7Dk']],
+  [/E&C 6(20|03)/, ['A80EHE9UVSE']],
+  [/^E&C\|/, ['A80EHE9UVSE', 'NYeVCc-k5cs', 'lOo1fFc3ujc']],
+  [/^KL \/ UMAREX\|/, ['HFR0ckZ8fQM']],
+  [/HK416A5/, ['rxJukPaMaQA', 'DhnPrt7sfDQ']],
+  [/^POSEIDON\|/, ['rxJukPaMaQA', 'xvNvcsLgAYw']],
+  [/^TOKYO MARUI\|/, ['wwrRQOl3rv4']],
+  [/CAA /, ['QOXZsZkcyYM']],
+  [/^KING ARMS\|/, ['QOXZsZkcyYM']],
+  [/^RAVEN\|/, ['rO__NJ2PXuI', 'NRp2jYLmonw']],
+  [/\|Budget Units\|/, ['AVPIDMFXoDE']],
+  [/^BOLT\|/, ['5Ahe9WiAeHI']],
+  [/BSK43/, ['xvNvcsLgAYw']],
+  [/SFX RIVAL/, ['62MrJSDEw44']],
+  [/FMG9/, ['DJtXRSfNsVk']],
+  [/^ARMY ARMAMENT\|GBB Pistols/, ['xm9UluztDeE']],
+  [/^LANCER TACTICAL\|AEG/, ['lOo1fFc3ujc']],
+  [/^WE\|GBB Rifles/, ['FTg6jvjl3Jc']],
+  [/^WE\|GBB Pistols/, ['lOo1fFc3ujc']],
+  [/^G&G\|AEG/, ['lOo1fFc3ujc']]
+];

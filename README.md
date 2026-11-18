@@ -7,6 +7,7 @@ This is a clickable demo of an online ordering system for Mavs Airsoft. Angelou 
 - **Product view:** quantity picker, Add to cart, a "Copy inquiry for Messenger" button, and more items from the same brand.
 - **Photo viewer:** zoom with the mouse wheel, a pinch or a double-click, then drag to look around. **▶ Motion** pans the photo by itself. A real **360° spin** turns on for any product that has a turntable photo set (add `spin: [driveId, …]` to it in `products.js`).
 - **Descriptions:** every item shows a short tagline on its card and a full description in its product view (`assets/descriptions.js`). The Krytac, Kizuna Works and Acetech items have model-specific write-ups based on the manufacturers' published features. Everything else gets a general platform, brand and category overview with no made-up specs.
+- **YouTube videos:** the shop page shows the latest videos from the Mavs Airsoft Ph channel. Product pages show related videos where that brand or model is featured, and units that have a video get a ▶ Video badge (`assets/videos.js`).
 - **Filters:** a compact sidebar on desktop and a "Filters & sort" button on phones.
 - **Cart and checkout:** asks for the customer's details, delivery method (pickup, LBC or J&T), payment (GCash, bank transfer or cash on pickup) and the 18+ / valid-ID confirmation. It creates an order number and copies the order text so the customer can paste it into Messenger.
 - **Track order:** shows the order status timeline (Pending → Confirmed → Paid → Packed → Shipped/Ready → Completed).

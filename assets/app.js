@@ -115,7 +115,7 @@
     const out = !inStock(p);
     return `<article class="card ${out ? 'out' : ''}" data-open="${p.id}">
       <div class="thumb loading">${imgTag(p)}
-        <div class="badges">${p.new ? '<span class="badge b-new">New</span>' : ''}${p.sale ? '<span class="badge b-sale">Sale</span>' : ''}${out ? '<span class="badge b-out">Sold out</span>' : ''}</div>
+        <div class="badges">${videosFor(p).length ? '<span class="badge b-vid">▶ Video</span>' : ''}${p.new ? '<span class="badge b-new">New</span>' : ''}${p.sale ? '<span class="badge b-sale">Sale</span>' : ''}${out ? '<span class="badge b-out">Sold out</span>' : ''}</div>
       </div>
       <div class="card-body">
         <span class="brand">${esc(p.b || p.c)}</span>
@@ -196,6 +196,9 @@
     modalP = p; modalQty = 1;
     viewer.load(p);
     renderDesc(p);
+    const vids = videosFor(p);
+    $('#mVideos').hidden = !vids.length;
+    $('#mVideos').innerHTML = vids.length ? `<h4>🎬 Related video${vids.length > 1 ? 's' : ''} from Mavs Airsoft</h4><div class="m-vlist">${vids.map(vidCard).join('')}</div>` : '';
     $('#mBrand').textContent = p.b || p.c;
     $('#mName').textContent = p.n;
     $('#mPrice').textContent = p.p == null ? 'Ask for price' : peso(p.p);
@@ -211,6 +214,30 @@
     $('.modal-card').scrollTop = 0;
   }
   const closeModal = () => { $('#modal').hidden = true; document.body.style.overflow = ''; viewer.stop(); };
+
+  // ---------- YouTube videos ----------
+  const VIDS = window.VIDEOS || [];
+  const vidById = Object.fromEntries(VIDS.map(v => [v.id, v]));
+  const ytThumb = id => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+  const vidCard = v => `<button class="yt-card" data-video="${v.id}" aria-label="Play: ${esc(v.t)}">
+      <span class="yt-thumb"><img src="${ytThumb(v.id)}" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="yt-play">▶</span></span>
+      <span class="yt-title">${esc(v.t)}</span></button>`;
+  function videosFor(p) {
+    const key = `${p.b}|${p.c}|${p.n}`, ids = [];
+    for (const [re, list] of (window.PRODUCT_VIDEOS || [])) if (re.test(key)) list.forEach(id => { if (!ids.includes(id) && vidById[id]) ids.push(id); });
+    return ids.slice(0, 3).map(id => vidById[id]);
+  }
+  function renderVideoRow() { $('#ytRow').innerHTML = VIDS.slice(0, 10).map(vidCard).join(''); }
+  function playVideo(id) {
+    const v = vidById[id]; if (!v) return;
+    $('#vFrame').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1" title="${esc(v.t)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+    $('#vTitle').textContent = v.t;
+    $('#vYt').href = `https://www.youtube.com/watch?v=${id}`;
+    $('#vmodal').hidden = false;
+  }
+  function closeVideo() { $('#vmodal').hidden = true; $('#vFrame').innerHTML = ''; }
+  $$('[data-close-video]').forEach(b => b.onclick = closeVideo);
+  document.addEventListener('click', e => { const b = e.target.closest('[data-video]'); if (b) { e.stopPropagation(); playVideo(b.dataset.video); } }, true);
 
   // ---------- description panel ----------
   function renderDesc(p) {
@@ -280,7 +307,7 @@
   $('#mMinus').onclick = () => { modalQty = Math.max(modalQty - 1, 1); $('#mQty').textContent = modalQty; };
   $('#mAdd').onclick = () => { addToCart(modalP.id, modalQty); closeModal(); };
   $('#mAsk').onclick = () => copy(`Hi Boss Mavs! Available pa po ba ang ${modalP.n}${modalP.p ? ` (${peso(modalP.p)})` : ''}? Salamat po!`, 'Inquiry copied — paste it in Messenger.');
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeCart(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!$('#vmodal').hidden) return closeVideo(); closeModal(); closeCart(); } });
 
   // ---------- checkout ----------
   const radio = n => $(`input[name="${n}"]:checked`).value;
@@ -438,5 +465,5 @@
   $('#demoClose').onclick = () => { $('#demoBar').hidden = true; store.set('demoClosed', true); };
 
   // ---------- init ----------
-  renderChips(); renderBrands(); renderShop(); renderCartCount(); syncCheckout(); route();
+  renderVideoRow(); renderChips(); renderBrands(); renderShop(); renderCartCount(); syncCheckout(); route();
 })();
