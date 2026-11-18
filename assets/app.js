@@ -37,10 +37,36 @@
   }
 
   // ---------- data ----------
-  const stockOverride = store.get('stock', {});           // admin "sold out / available" toggles
-  const PRODUCTS = window.PRODUCTS.map(p => ({ ...p, s: p.id in stockOverride ? stockOverride[p.id] : p.s }));
+  // ---------- inventory (stock quantities) ----------
+  // Demo quantities are generated (sold-out items = 0). In the real system Mavs enters the actual counts.
+  const qtyStore = store.get('qty', {});
+  const seed = id => { let h = Math.imul(id, 2654435761) >>> 0; h = (h ^ (h >>> 13)) >>> 0; return h % 100; };
+  const baseQty = p => (!p.s || p.p == null) ? 0 : p.id === 1 ? 4 : (r => r < 12 ? 1 + (r % 3) : 4 + (r % 12))(seed(p.id));
+  const PRODUCTS = window.PRODUCTS.map(p => ({ ...p, q: p.id in qtyStore ? qtyStore[p.id] : baseQty(p) }));
   const byId = Object.fromEntries(PRODUCTS.map(p => [p.id, p]));
-  const inStock = p => p.s && p.p != null;
+  const inv = Object.assign({ low: 3 }, store.get('inv', {}));         // low-stock threshold
+  const inStock = p => p.q > 0 && p.p != null;
+  const isLow = p => inStock(p) && p.q <= inv.low;
+  const invLog = store.get('invlog', []);                               // stock movement history
+  const alerts = store.get('alerts', []);                               // low / out-of-stock alerts
+
+  function pushAlert(type, p) {
+    const msg = type === 'out' ? `${p.n} is now OUT OF STOCK` : `${p.n} is running low: ${p.q} left`;
+    alerts.unshift({ t: Date.now(), id: p.id, type, msg, read: false });
+    alerts.length = Math.min(alerts.length, 50); store.set('alerts', alerts);
+    toast('🔔 ' + msg);
+    try { if ('Notification' in window && Notification.permission === 'granted') new Notification('Mavs Airsoft · Inventory', { body: msg }); } catch { /* not supported */ }
+    renderBell();
+  }
+  function setQty(p, q, reason) {
+    const before = p.q; p.q = Math.max(0, Math.min(9999, Math.round(q) || 0));
+    if (p.q === before) return;
+    qtyStore[p.id] = p.q; store.set('qty', qtyStore);
+    invLog.unshift({ t: Date.now(), id: p.id, from: before, to: p.q, reason });
+    invLog.length = Math.min(invLog.length, 100); store.set('invlog', invLog);
+    if (before > 0 && p.q === 0) pushAlert('out', p);
+    else if (p.q > 0 && p.q <= inv.low && before > inv.low) pushAlert('low', p);
+  }
 
   const CAT_ORDER = ['New Arrivals', 'AEG Rifles', 'GBB Pistols', 'GBB Rifles', 'Sniper Rifles', 'CO2 Guns', 'Budget Units', 'Spring Pistols',
     'Inventory Sale', 'Accessories', 'AEG Parts', 'GBB Parts', 'Sniper Parts', 'HPA', 'Batteries', 'BBs & Gas', 'Conversion Kits', 'Tactical Gear'];
@@ -55,7 +81,9 @@
     const p = byId[id];
     if (!p || !inStock(p)) return toast('Sorry, sold out.');
     const line = cart.find(c => c.id === id);
-    line ? line.qty = Math.min(line.qty + qty, 20) : cart.push({ id, qty });
+    const have = line ? line.qty : 0;
+    if (have + qty > p.q) { if (have >= p.q) return toast(`Only ${p.q} available, already in your cart.`); qty = p.q - have; toast(`Only ${p.q} available, added the rest.`); }
+    line ? line.qty = have + qty : cart.push({ id, qty });
     saveCart(); toast(`Added: ${p.n}`);
     const cc = $('#cartCount'); cc.classList.remove('bump'); void cc.offsetWidth; cc.classList.add('bump');
   }
@@ -81,7 +109,7 @@
     if (!id) return;
     const line = cart.find(c => c.id === id);
     if (t.dataset.rm) cart = cart.filter(c => c.id !== id);
-    if (t.dataset.inc) line.qty = Math.min(line.qty + 1, 20);
+    if (t.dataset.inc) { if (line.qty >= byId[id].q) toast(`Only ${byId[id].q} available.`); else line.qty++; }
     if (t.dataset.dec) { line.qty--; if (line.qty < 1) cart = cart.filter(c => c.id !== id); }
     saveCart(); renderCart();
   });
@@ -115,7 +143,7 @@
     const out = !inStock(p);
     return `<article class="card ${out ? 'out' : ''}" data-open="${p.id}">
       <div class="thumb loading">${imgTag(p)}
-        <div class="badges">${videosFor(p).length ? '<span class="badge b-vid">▶ Video</span>' : ''}${p.new ? '<span class="badge b-new">New</span>' : ''}${p.sale ? '<span class="badge b-sale">Sale</span>' : ''}${out ? '<span class="badge b-out">Sold out</span>' : ''}</div>
+        <div class="badges">${videosFor(p).length ? '<span class="badge b-vid">▶ Video</span>' : ''}${p.new ? '<span class="badge b-new">New</span>' : ''}${p.sale ? '<span class="badge b-sale">Sale</span>' : ''}${out ? '<span class="badge b-out">Sold out</span>' : isLow(p) ? `<span class="badge b-low">Only ${p.q} left</span>` : ''}</div>
       </div>
       <div class="card-body">
         <span class="brand">${esc(p.b || p.c)}</span>
@@ -204,8 +232,8 @@
     $('#mPrice').textContent = p.p == null ? 'Ask for price' : peso(p.p);
     $('#mCat').textContent = p.c;
     const ok = inStock(p);
-    $('#mStock').textContent = ok ? '● In stock — ready for order' : '● Sold out — message Mavs for restock';
-    $('#mStock').className = 'stock ' + (ok ? 'ok' : 'no');
+    $('#mStock').textContent = !ok ? '● Sold out — message Mavs for restock' : isLow(p) ? `● Only ${p.q} left — order soon` : `● In stock — ${p.q} available`;
+    $('#mStock').className = 'stock ' + (!ok ? 'no' : isLow(p) ? 'low' : 'ok');
     $('#mAdd').disabled = !ok; $('#mQty').textContent = 1;
     const rel = PRODUCTS.filter(x => x.id !== p.id && x.b && x.b === p.b).slice(0, 6);
     $('#mRelated').innerHTML = rel.length ? rel.map(r => `<div class="rel" data-open="${r.id}">${imgTag(r, 300)}<div>${esc(r.n)}</div></div>`).join('') : '<p class="muted small">—</p>';
@@ -303,7 +331,7 @@
     return { load, stop };
   })();
   $$('[data-close]').forEach(b => b.onclick = closeModal);
-  $('#mPlus').onclick = () => { modalQty = Math.min(modalQty + 1, 20); $('#mQty').textContent = modalQty; };
+  $('#mPlus').onclick = () => { if (modalQty >= modalP.q) return toast(`Only ${modalP.q} available.`); modalQty++; $('#mQty').textContent = modalQty; };
   $('#mMinus').onclick = () => { modalQty = Math.max(modalQty - 1, 1); $('#mQty').textContent = modalQty; };
   $('#mAdd').onclick = () => { addToCart(modalP.id, modalQty); closeModal(); };
   $('#mAsk').onclick = () => copy(`Hi Boss Mavs! Available pa po ba ang ${modalP.n}${modalP.p ? ` (${peso(modalP.p)})` : ''}? Salamat po!`, 'Inquiry copied — paste it in Messenger.');
@@ -341,6 +369,8 @@
     if (bad.length) { bad.forEach(x => x.classList.add('is-invalid')); bad[0].focus(); err.textContent = 'Paki-check ang mga field na naka-pula (valid name, 11-digit mobile, at address kung ipapadala).'; return; }
     if (!$('#cAgree').checked) { err.textContent = 'Please confirm the age / valid ID requirement.'; return; }
     if (!cart.length) { err.textContent = 'Empty ang cart.'; return; }
+    const short = cart.find(c => c.qty > byId[c.id].q);
+    if (short) { err.textContent = `Pasensya po, ${byId[short.id].q} na lang ang natitirang ${byId[short.id].n}. Paki-adjust ang cart.`; return; }
 
     const d = new Date();
     const no = `MAVS-${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -350,6 +380,7 @@
       items: cart.map(c => ({ id: c.id, n: byId[c.id].n, p: byId[c.id].p, qty: c.qty })), total: cartTotal()
     };
     const orders = store.get('orders', []); orders.unshift(order); store.set('orders', orders);
+    cart.forEach(c => setQty(byId[c.id], byId[c.id].q - c.qty, `Order ${no}`));   // auto-deduct stock
     cart = []; saveCart(); e.target.reset(); syncCheckout();
     showDone(order);
   });
@@ -403,10 +434,13 @@
     const orders = allOrders();
     const pending = orders.filter(o => o.status === 0).length;
     const revenue = orders.filter(o => o.status >= 2).reduce((s, o) => s + o.total, 0);
-    const sold = PRODUCTS.filter(p => !inStock(p)).length;
+    const priced = PRODUCTS.filter(p => p.p != null);
+    const low = priced.filter(isLow).length, out = priced.filter(p => !inStock(p)).length;
+    const value = priced.reduce((s, p) => s + p.p * p.q, 0), units = priced.reduce((s, p) => s + p.q, 0);
     $('#kpis').innerHTML = [
-      [orders.length, 'Total orders'], [pending, 'Waiting for confirmation'], [peso(revenue), 'Paid sales'], [sold, 'Items marked sold out']
-    ].map(([b, s]) => `<div class="kpi"><b>${b}</b><span>${s}</span></div>`).join('');
+      [orders.length, 'Total orders', ''], [pending, 'Waiting for confirmation', ''], [peso(revenue), 'Paid sales', ''],
+      [low, 'Low stock items', 'warn'], [out, 'Out of stock', 'bad'], [peso(value), `Inventory value · ${units.toLocaleString()} pcs`, '']
+    ].map(([b, s, k]) => `<div class="kpi ${k}"><b>${b}</b><span>${s}</span></div>`).join('');
 
     $('#adminOrders').innerHTML = `<table><thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Delivery / Payment</th><th>Status</th></tr></thead><tbody>
       ${orders.map(o => `<tr>
@@ -417,7 +451,7 @@
         <td>${esc(o.delivery)}<br><span class="muted small">${esc(o.payment)}</span></td>
         <td><select data-order="${esc(o.no)}">${STATUSES.map((s, i) => `<option value="${i}" ${i === o.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
       </tr>`).join('')}</tbody></table>`;
-    renderStockTable();
+    renderStockTable(); renderBell();
   }
   $('#adminOrders').addEventListener('change', e => {
     const no = e.target.dataset.order; if (!no) return;
@@ -426,24 +460,64 @@
     else { const os = store.get('orders', []); const o = os.find(x => x.no === no); if (o) o.status = v; store.set('orders', os); }
     toast(`${no} → ${STATUSES[v]}`); renderAdmin();
   });
+  const statusPill = p => !inStock(p) ? '<span class="pill p-out">Out of stock</span>' : isLow(p) ? '<span class="pill p-low">Low stock</span>' : '<span class="pill p-ok">In stock</span>';
   function renderStockTable() {
-    const q = $('#stockSearch').value.trim().toLowerCase();
-    const list = PRODUCTS.filter(p => p.p != null && (!q || `${p.n} ${p.b}`.toLowerCase().includes(q))).slice(0, 60);
-    $('#stockTable').innerHTML = `<table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Available</th></tr></thead><tbody>
+    const q = $('#stockSearch').value.trim().toLowerCase(), f = $('#stockFilter').value;
+    let list = PRODUCTS.filter(p => p.p != null && (!q || `${p.n} ${p.b} ${p.c}`.toLowerCase().includes(q)));
+    if (f === 'low') list = list.filter(isLow);
+    if (f === 'out') list = list.filter(p => !inStock(p));
+    if (f === 'low-out') list = list.filter(p => isLow(p) || !inStock(p));
+    if (f !== 'all') list.sort((a, b) => a.q - b.q);
+    const total = list.length; list = list.slice(0, 80);
+    $('#stockTable').innerHTML = `<table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr></thead><tbody>
       ${list.map(p => `<tr><td>${esc(p.n)}<br><span class="muted small">${esc(p.b)}</span></td><td>${esc(p.c)}</td><td>${peso(p.p)}</td>
-      <td><label class="switch"><input type="checkbox" data-stock="${p.id}" ${p.s ? 'checked' : ''}> ${p.s ? 'In stock' : 'Sold out'}</label></td></tr>`).join('')}
-      </tbody></table>${list.length === 60 ? '<p class="muted small" style="padding:8px 12px">Showing first 60 — search to narrow down.</p>' : ''}`;
+      <td><div class="qty inv-qty"><button data-dq="${p.id}" data-d="-1" aria-label="Decrease stock">−</button><input type="number" min="0" value="${p.q}" data-setq="${p.id}" aria-label="Stock of ${esc(p.n)}"><button data-dq="${p.id}" data-d="1" aria-label="Increase stock">+</button></div></td>
+      <td>${statusPill(p)}</td><td><button class="btn btn-ghost btn-sm" data-dq="${p.id}" data-d="10">+10 restock</button></td></tr>`).join('') || '<tr><td colspan="6" class="muted center">Walang item dito. 👍</td></tr>'}
+      </tbody></table>${total > 80 ? `<p class="muted small" style="padding:8px 12px">Showing 80 of ${total}. Search or filter to narrow down.</p>` : ''}`;
+    $('#invLog').innerHTML = invLog.slice(0, 12).map(l => `<li><span class="muted">${new Date(l.t).toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span> · ${esc(byId[l.id]?.n || '')}: <b>${l.from} → ${l.to}</b> <span class="muted">(${esc(l.reason)})</span></li>`).join('') || '<li class="muted">Wala pang stock movement. Try mag-order o mag-restock.</li>';
   }
   $('#stockSearch').addEventListener('input', renderStockTable);
-  $('#stockTable').addEventListener('change', e => {
-    const id = +e.target.dataset.stock; if (!id) return;
-    byId[id].s = e.target.checked; stockOverride[id] = e.target.checked; store.set('stock', stockOverride);
-    toast(`${byId[id].n}: ${e.target.checked ? 'available' : 'sold out'}`); renderAdmin(); renderShop();
+  $('#stockFilter').addEventListener('change', renderStockTable);
+  $('#invLow').value = inv.low;
+  $('#invLow').addEventListener('change', e => { inv.low = Math.max(0, +e.target.value || 0); store.set('inv', inv); renderAdmin(); renderShop(); toast(`Low-stock alert set to ${inv.low} pcs or fewer`); });
+  $('#stockTable').addEventListener('click', e => {
+    const b = e.target.closest('[data-dq]'); if (!b) return;
+    const p = byId[+b.dataset.dq], d = +b.dataset.d;
+    setQty(p, p.q + d, d === 10 ? 'Restock' : 'Manual adjust'); renderAdmin(); renderShop();
   });
+  $('#stockTable').addEventListener('change', e => {
+    const id = +e.target.dataset.setq; if (!id) return;
+    setQty(byId[id], +e.target.value, 'Stock count'); renderAdmin(); renderShop();
+  });
+
+  // ---------- alerts bell ----------
+  function renderBell() {
+    const unread = alerts.filter(a => !a.read).length;
+    const needs = PRODUCTS.filter(p => p.p != null && (isLow(p) || !inStock(p))).length;
+    $('#bellCount').textContent = unread || '';
+    $('#bellCount').hidden = !unread;
+    $('#bellList').innerHTML = (alerts.length ? alerts.slice(0, 15).map(a => `<li class="${a.read ? '' : 'unread'} ${a.type}"><span>${a.type === 'out' ? '⛔' : '⚠️'} ${esc(a.msg)}</span><small>${new Date(a.t).toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</small></li>`).join('')
+      : '<li class="muted">Wala pang bagong alerts. Lalabas dito kapag may item na paubos o naubos na.</li>')
+      + `<li class="bell-sum"><button class="linkish" id="bellShow">${needs} items need restocking: view in Inventory →</button></li>`;
+  }
+  $('#bellBtn').onclick = () => {
+    const panel = $('#bellPanel'); panel.hidden = !panel.hidden;
+    if (!panel.hidden) { alerts.forEach(a => a.read = true); store.set('alerts', alerts); setTimeout(renderBell, 1500); }
+  };
+  $('#bellPanel').addEventListener('click', e => {
+    if (e.target.id !== 'bellShow') return;
+    $('#bellPanel').hidden = true; $('#stockFilter').value = 'low-out';
+    $('[data-tab="stock"]').click();
+  });
+  $('#notifBtn').onclick = async () => {
+    if (!('Notification' in window)) return toast('This browser does not support notifications.');
+    try { const r = await Notification.requestPermission(); toast(r === 'granted' ? 'Notifications on for this device ✅' : 'Notifications not allowed.'); } catch { toast('Notifications not available here.'); }
+  };
   $$('.tab').forEach(t => t.onclick = () => {
     $$('.tab').forEach(x => x.classList.toggle('active', x === t));
     $('#adminOrders').hidden = t.dataset.tab !== 'orders';
     $('#adminStock').hidden = t.dataset.tab !== 'stock';
+    if (t.dataset.tab === 'stock') renderStockTable();
   });
 
   // ---------- router ----------
@@ -465,5 +539,5 @@
   $('#demoClose').onclick = () => { $('#demoBar').hidden = true; store.set('demoClosed', true); };
 
   // ---------- init ----------
-  renderVideoRow(); renderChips(); renderBrands(); renderShop(); renderCartCount(); syncCheckout(); route();
+  renderVideoRow(); renderChips(); renderBrands(); renderBell(); renderShop(); renderCartCount(); syncCheckout(); route();
 })();

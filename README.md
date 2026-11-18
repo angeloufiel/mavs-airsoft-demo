@@ -11,7 +11,8 @@ This is a clickable demo of an online ordering system for Mavs Airsoft. Angelou 
 - **Filters:** a compact sidebar on desktop and a "Filters & sort" button on phones.
 - **Cart and checkout:** asks for the customer's details, delivery method (pickup, LBC or J&T), payment (GCash, bank transfer or cash on pickup) and the 18+ / valid-ID confirmation. It creates an order number and copies the order text so the customer can paste it into Messenger.
 - **Track order:** shows the order status timeline (Pending → Confirmed → Paid → Packed → Shipped/Ready → Completed).
-- **Admin preview:** shows sales KPIs, lets you change an order's status, and lets you mark items sold out or available.
+- **Admin preview:** shows sales KPIs and lets you change an order's status.
+- **Inventory:** each product has a stock count. Stock goes down automatically when a customer orders, and customers can't order more than what's available. The shop shows "Only N left" badges. The admin can adjust stock, restock (+10), filter Low / Out of stock, and set the low-stock alert level. A 🔔 alerts panel and a toast (plus optional phone/desktop notifications) appear when an item runs low or sells out. A stock movement history is kept. Demo quantities are sample data.
 
 > Demo only: orders and stock changes are saved only in the visitor's own browser (localStorage).
 > The real system would use PHP + MySQL, an admin login, and a full import of all 3,000+ Drive photos.

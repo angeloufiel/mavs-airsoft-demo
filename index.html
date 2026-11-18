@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=4">
+  <link rel="stylesheet" href="assets/style.css?v=5">
 </head>
 <body>
 
@@ -203,18 +203,39 @@
             <p class="eyebrow">Owner dashboard · preview</p>
             <h1 class="page-title">Hi Boss Mavs 👋</h1>
           </div>
-          <a href="#shop" class="btn btn-ghost btn-sm">View shop</a>
+          <div class="admin-actions">
+            <div class="bell-wrap">
+              <button class="btn btn-ghost btn-sm bell-btn" id="bellBtn" aria-label="Inventory alerts">🔔 Alerts <span class="bell-count" id="bellCount" hidden></span></button>
+              <div class="bell-panel" id="bellPanel" hidden>
+                <div class="bell-head"><b>Inventory alerts</b><button class="linkish" id="notifBtn">Enable phone/desktop alerts</button></div>
+                <ul id="bellList"></ul>
+              </div>
+            </div>
+            <a href="#shop" class="btn btn-ghost btn-sm">View shop</a>
+          </div>
         </div>
         <p class="muted small">Sa totoong system, may login ito at naka-save sa database. Sa demo na ito, naka-save lang sa browser mo.</p>
         <div class="kpis" id="kpis"></div>
         <div class="admin-tabs" role="tablist">
           <button class="tab active" data-tab="orders">Orders</button>
-          <button class="tab" data-tab="stock">Stock</button>
+          <button class="tab" data-tab="stock">Inventory</button>
         </div>
         <div id="adminOrders" class="table-wrap"></div>
         <div id="adminStock" hidden>
-          <input id="stockSearch" class="stock-search" type="search" placeholder="Search product to mark sold out / available…">
+          <div class="inv-bar">
+            <input id="stockSearch" type="search" placeholder="Search product, brand or category…">
+            <select id="stockFilter" aria-label="Show">
+              <option value="all">All items</option>
+              <option value="low-out">Needs restock (low + out)</option>
+              <option value="low">Low stock only</option>
+              <option value="out">Out of stock only</option>
+            </select>
+            <label class="inv-low">Alert me when stock is ≤ <input id="invLow" type="number" min="0" max="50"> pcs</label>
+          </div>
+          <p class="muted small">Stock is deducted automatically when a customer places an order. You get an alert when an item drops to the low-stock level or runs out. Demo quantities are sample data.</p>
           <div class="table-wrap" id="stockTable"></div>
+          <h3 class="inv-h">Recent stock movement</h3>
+          <ul class="inv-log" id="invLog"></ul>
         </div>
       </div>
     </section>
@@ -295,9 +316,9 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="assets/products.js?v=4"></script>
-  <script src="assets/descriptions.js?v=4"></script>
-  <script src="assets/videos.js?v=4"></script>
-  <script src="assets/app.js?v=4"></script>
+  <script src="assets/products.js?v=5"></script>
+  <script src="assets/descriptions.js?v=5"></script>
+  <script src="assets/videos.js?v=5"></script>
+  <script src="assets/app.js?v=5"></script>
 </body>
 </html>
