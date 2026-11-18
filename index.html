@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mavs Airsoft — Online Shop (Demo)</title>
+  <meta name="description" content="Demo online ordering system for Mavs Airsoft: browse units, parts and gear, add to cart, checkout and track orders.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <!-- Demo notice -->
+  <div class="demo-bar" id="demoBar">
+    <span><b>DEMO PREVIEW</b> · Ginawa ni Angelou Fiel para sa Mavs Airsoft. Real prices & photos from your Drive catalog. Walang totoong order na mapapadala.</span>
+    <button class="demo-x" id="demoClose" aria-label="Close notice">✕</button>
+  </div>
+
+  <!-- Header -->
+  <header class="topbar">
+    <div class="wrap topbar-in">
+      <a href="#shop" class="logo" aria-label="Mavs Airsoft home">
+        <span class="logo-mark">M</span>
+        <span class="logo-text">MAVS<em>AIRSOFT</em></span>
+      </a>
+      <div class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4a6 6 0 1 0 3.9 10.6l4.7 4.7 1.4-1.4-4.7-4.7A6 6 0 0 0 10 4Zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"/></svg>
+        <input id="search" type="search" placeholder="Search units, parts, gear… (e.g. Krytac, VSR, 0.25)" autocomplete="off">
+      </div>
+      <nav class="nav">
+        <a href="#track" class="nav-link">Track order</a>
+        <a href="#admin" class="nav-link nav-admin">Admin</a>
+        <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM5.2 4l.4 2H21l-2.2 8.5a2 2 0 0 1-1.9 1.5H8.3a2 2 0 0 1-2-1.6L4.2 4H2V2h3.8l.4 2Z"/></svg>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- SHOP VIEW -->
+    <section class="view" id="view-shop">
+      <div class="hero">
+        <div class="wrap hero-in">
+          <div class="hero-copy">
+            <p class="eyebrow">Airsoft units · Parts · Gear</p>
+            <h1>Order your next build<br><span>without the back-and-forth.</span></h1>
+            <p class="lead">Browse the full stock list with real-time availability, add to cart, and send your order in one go. Mavs confirms, you pay, we ship.</p>
+            <div class="hero-cta">
+              <button class="btn btn-red" data-cat="AEG Rifles">Shop rifles</button>
+              <button class="btn btn-ghost" data-cat="New Arrivals">New arrivals</button>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <div><b id="statItems">0</b><span>items in this demo</span></div>
+            <div><b>3,100+</b><span>photos in the Drive catalog</span></div>
+            <div><b id="statBrands">0</b><span>categories</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wrap">
+        <div class="chips" id="chips" role="tablist" aria-label="Categories"></div>
+
+        <div class="shop-grid">
+          <aside class="filters" id="filters">
+            <h3>Filters</h3>
+            <label class="f-label" for="fBrand">Brand / type</label>
+            <select id="fBrand"><option value="">All</option></select>
+
+            <label class="f-label">Price (₱)</label>
+            <div class="price-row">
+              <input id="fMin" type="number" min="0" step="500" placeholder="Min">
+              <span>–</span>
+              <input id="fMax" type="number" min="0" step="500" placeholder="Max">
+            </div>
+
+            <label class="f-check"><input type="checkbox" id="fStock"> In stock only</label>
+
+            <label class="f-label" for="fSort">Sort by</label>
+            <select id="fSort">
+              <option value="featured">Featured</option>
+              <option value="low">Price: low to high</option>
+              <option value="high">Price: high to low</option>
+              <option value="az">Name: A–Z</option>
+            </select>
+            <button class="btn btn-ghost btn-sm full" id="fReset">Reset filters</button>
+          </aside>
+
+          <div>
+            <div class="result-bar">
+              <h2 id="resultTitle">All products</h2>
+              <span id="resultCount" class="muted"></span>
+            </div>
+            <div class="grid" id="grid"></div>
+            <div class="load-more-wrap"><button class="btn btn-ghost" id="loadMore">Load more</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHECKOUT VIEW -->
+    <section class="view" id="view-checkout" hidden>
+      <div class="wrap narrow">
+        <a href="#shop" class="back">← Continue shopping</a>
+        <h1 class="page-title">Checkout</h1>
+        <div class="checkout">
+          <form id="checkoutForm" novalidate>
+            <fieldset>
+              <legend>1 · Your details</legend>
+              <div class="row2">
+                <div class="field"><label for="cName">Full name *</label><input id="cName" required autocomplete="name"></div>
+                <div class="field"><label for="cPhone">Mobile number *</label><input id="cPhone" required inputmode="numeric" placeholder="09XXXXXXXXX" autocomplete="tel"></div>
+              </div>
+              <div class="field"><label for="cFb">Facebook / Messenger name</label><input id="cFb" placeholder="So Mavs can message you"></div>
+            </fieldset>
+
+            <fieldset>
+              <legend>2 · Delivery</legend>
+              <div class="opts" id="deliveryOpts">
+                <label class="opt"><input type="radio" name="delivery" value="Store pickup" checked><span><b>Store pickup</b><small>Free · pick up when ready</small></span></label>
+                <label class="opt"><input type="radio" name="delivery" value="LBC"><span><b>LBC</b><small>Shipping fee quoted after confirmation</small></span></label>
+                <label class="opt"><input type="radio" name="delivery" value="J&T Express"><span><b>J&amp;T Express</b><small>Shipping fee quoted after confirmation</small></span></label>
+              </div>
+              <div class="field" id="addrWrap" hidden><label for="cAddr">Complete address *</label><textarea id="cAddr" rows="2" placeholder="House no., street, barangay, city, province"></textarea></div>
+            </fieldset>
+
+            <fieldset>
+              <legend>3 · Payment</legend>
+              <div class="opts">
+                <label class="opt"><input type="radio" name="payment" value="GCash" checked><span><b>GCash</b><small>Send proof after Mavs confirms</small></span></label>
+                <label class="opt"><input type="radio" name="payment" value="Bank transfer"><span><b>Bank transfer</b><small>BDO / BPI / etc.</small></span></label>
+                <label class="opt"><input type="radio" name="payment" value="Cash on pickup"><span><b>Cash on pickup</b><small>Store pickup only</small></span></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>4 · Notes</legend>
+              <div class="field"><textarea id="cNotes" rows="2" placeholder="Upgrade requests, preferred color, etc. (optional)"></textarea></div>
+              <label class="f-check agree"><input type="checkbox" id="cAgree"> I am 18 years old or above and will present a valid ID / follow the store's requirements upon release of airsoft units. *</label>
+            </fieldset>
+            <p class="form-error" id="formError" role="alert"></p>
+            <button class="btn btn-red btn-lg full" type="submit">Place order</button>
+            <p class="muted small center">Mavs will confirm stock and shipping fee before you pay.</p>
+          </form>
+
+          <aside class="summary">
+            <h3>Order summary</h3>
+            <div id="sumItems"></div>
+            <div class="sum-line"><span>Subtotal</span><b id="sumSub">₱0</b></div>
+            <div class="sum-line"><span>Shipping</span><span id="sumShip">Free (pickup)</span></div>
+            <div class="sum-line total"><span>Total</span><b id="sumTotal">₱0</b></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONFIRMATION VIEW -->
+    <section class="view" id="view-done" hidden>
+      <div class="wrap narrow center">
+        <div class="done-badge">✓</div>
+        <h1 class="page-title">Order placed!</h1>
+        <p class="lead">Your order number is <b id="doneNo" class="mono"></b>.<br>Mavs Airsoft will message you to confirm stock and payment.</p>
+        <pre class="order-text" id="doneText"></pre>
+        <div class="hero-cta center">
+          <button class="btn btn-red" id="copyOrder">Copy order for Messenger</button>
+          <a class="btn btn-ghost" id="doneTrack" href="#track">Track this order</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRACK VIEW -->
+    <section class="view" id="view-track" hidden>
+      <div class="wrap narrow">
+        <a href="#shop" class="back">← Back to shop</a>
+        <h1 class="page-title">Track your order</h1>
+        <form id="trackForm" class="track-form" novalidate>
+          <input id="tNo" placeholder="Order number (e.g. MAVS-261118-4821)" required>
+          <input id="tPhone" placeholder="Mobile number used" inputmode="numeric" required>
+          <button class="btn btn-red" type="submit">Track</button>
+        </form>
+        <p class="muted small">Tip: in this demo, try a sample order: <button class="linkish" id="tryDemo">MAVS-DEMO-0001 / 09171234567</button></p>
+        <div id="trackResult"></div>
+      </div>
+    </section>
+
+    <!-- ADMIN VIEW -->
+    <section class="view" id="view-admin" hidden>
+      <div class="wrap">
+        <div class="admin-head">
+          <div>
+            <p class="eyebrow">Owner dashboard · preview</p>
+            <h1 class="page-title">Hi Boss Mavs 👋</h1>
+          </div>
+          <a href="#shop" class="btn btn-ghost btn-sm">View shop</a>
+        </div>
+        <p class="muted small">Sa totoong system, may login ito at naka-save sa database. Sa demo na ito, naka-save lang sa browser mo.</p>
+        <div class="kpis" id="kpis"></div>
+        <div class="admin-tabs" role="tablist">
+          <button class="tab active" data-tab="orders">Orders</button>
+          <button class="tab" data-tab="stock">Stock</button>
+        </div>
+        <div id="adminOrders" class="table-wrap"></div>
+        <div id="adminStock" hidden>
+          <input id="stockSearch" class="stock-search" type="search" placeholder="Search product to mark sold out / available…">
+          <div class="table-wrap" id="stockTable"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-in">
+      <div>
+        <div class="logo small-logo"><span class="logo-mark">M</span><span class="logo-text">MAVS<em>AIRSOFT</em></span></div>
+        <p class="muted small">This demo shows 415 sample items from the Mavs Airsoft Google Drive catalog. The full system can import all 3,000+ photos with their prices.</p>
+      </div>
+      <div class="credit">
+        <span class="muted small">Demo designed &amp; built by</span>
+        <a href="https://angeloufiel.github.io/" target="_blank" rel="noopener"><b>Angelou Fiel</b> · angeloufiel.github.io</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Product modal -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-back" data-close></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mName">
+      <button class="modal-x" data-close aria-label="Close">✕</button>
+      <div class="modal-grid">
+        <div class="modal-img"><img id="mImg" alt="" referrerpolicy="no-referrer"></div>
+        <div class="modal-info">
+          <p class="eyebrow" id="mBrand"></p>
+          <h2 id="mName"></h2>
+          <p class="m-price" id="mPrice"></p>
+          <p id="mStock" class="stock"></p>
+          <div class="qty-row">
+            <div class="qty"><button id="mMinus" aria-label="Decrease">−</button><span id="mQty">1</span><button id="mPlus" aria-label="Increase">+</button></div>
+            <button class="btn btn-red" id="mAdd">Add to cart</button>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="mAsk">Copy inquiry for Messenger</button>
+          <p class="muted small">Category: <span id="mCat"></span></p>
+          <h4 class="rel-title">More from this brand</h4>
+          <div class="related" id="mRelated"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart drawer -->
+  <div class="drawer" id="drawer" hidden>
+    <div class="modal-back" data-close-cart></div>
+    <aside class="drawer-card" aria-label="Cart">
+      <div class="drawer-head"><h3>Your cart</h3><button class="modal-x static" data-close-cart aria-label="Close cart">✕</button></div>
+      <div class="drawer-body" id="cartItems"></div>
+      <div class="drawer-foot">
+        <div class="sum-line total"><span>Subtotal</span><b id="cartSub">₱0</b></div>
+        <button class="btn btn-red btn-lg full" id="goCheckout">Checkout</button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/products.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
