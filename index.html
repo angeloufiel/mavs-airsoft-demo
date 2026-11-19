@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=6">
+  <link rel="stylesheet" href="assets/style.css?v=7">
 </head>
 <body>
 
@@ -158,9 +158,11 @@
                 <button id="vIn" aria-label="Zoom in">+</button>
                 <button id="vReset" aria-label="Reset view">⟲</button>
                 <button id="vMotion" aria-pressed="false" title="Auto motion">▶ Motion</button>
+                <button id="vExpand" title="Expanded view">⤢ Expand</button>
               </div>
             </div>
-            <p class="viewer-hint" id="vHint">Scroll or pinch to zoom · drag to look around · double-click to zoom</p>
+            <div class="pthumbs" id="pThumbs"></div>
+            <p class="viewer-hint" id="vHint">Click image to open expanded view · scroll or pinch to zoom</p>
           </div>
 
           <div class="pd-info">
@@ -396,11 +398,23 @@
     </div>
   </div>
 
+  <!-- Expanded image view (lightbox) -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Expanded image view">
+    <div class="lb-top"><span class="lb-title" id="lbTitle"></span><span class="lb-count" id="lbCount"></span><button class="lb-x" id="lbClose" aria-label="Close expanded view">✕</button></div>
+    <div class="lb-stage" id="lbStage">
+      <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous image">‹</button>
+      <div class="lb-media" id="lbMedia"></div>
+      <button class="lb-nav lb-next" id="lbNext" aria-label="Next image">›</button>
+    </div>
+    <div class="lb-thumbs" id="lbThumbs"></div>
+    <p class="lb-hint">Click image to zoom · ← → to browse · Esc to close</p>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="assets/products.js?v=6"></script>
-  <script src="assets/descriptions.js?v=6"></script>
-  <script src="assets/videos.js?v=6"></script>
-  <script src="assets/app.js?v=6"></script>
+  <script src="assets/products.js?v=7"></script>
+  <script src="assets/descriptions.js?v=7"></script>
+  <script src="assets/videos.js?v=7"></script>
+  <script src="assets/app.js?v=7"></script>
 </body>
 </html>

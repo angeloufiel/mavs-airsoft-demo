@@ -236,6 +236,7 @@
     viewer.load(p);
     renderDesc(p);
     const vids = videosFor(p);
+    gallery.set(p, vids);
     $('#ptabVideos').hidden = !vids.length;
     $('#ptabVideos').textContent = `Videos (${vids.length})`;
     $('#mVideos').innerHTML = vids.length ? `<p class="muted small">Watch Mavs Airsoft's own review${vids.length > 1 ? 's' : ''} related to this item:</p><div class="m-vlist">${vids.map(v => vidCard(v, 0)).join('')}</div>` : '';
@@ -332,27 +333,98 @@
       stop(); reset(); frames = Array.isArray(p.spin) && p.spin.length > 1 ? p.spin : null; frame = 0;
       setSrc(frames ? frames[0] : p.img); im.alt = p.n;
       $('#v360').hidden = !frames;
-      $('#vHint').textContent = frames ? 'Drag left/right to rotate 360° · scroll or pinch to zoom' : 'Scroll or pinch to zoom · drag to look around · double-click to zoom';
+      $('#vHint').textContent = frames ? 'Drag left/right to rotate 360° · click to open expanded view' : 'Click image to open expanded view · scroll or pinch to zoom';
     }
+    function show(id) { stop(); reset(); setSrc(id); }
     stage.addEventListener('wheel', e => { e.preventDefault(); stop(); zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15); }, { passive: false });
-    stage.addEventListener('dblclick', () => { stop(); s > 1 ? reset() : zoom(2.2); });
-    stage.addEventListener('pointerdown', e => { stop(); stage.setPointerCapture(e.pointerId); pointers.set(e.pointerId, [e.clientX, e.clientY]); last = [e.clientX, e.clientY];
+    let downAt = null, moved = 0;
+    stage.addEventListener('pointerdown', e => { stop(); stage.setPointerCapture(e.pointerId); pointers.set(e.pointerId, [e.clientX, e.clientY]); last = [e.clientX, e.clientY]; downAt = Date.now(); moved = 0;
       if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch0 = [Math.hypot(a[0] - b[0], a[1] - b[1]), s]; } });
     stage.addEventListener('pointermove', e => {
       if (!pointers.has(e.pointerId)) return;
       pointers.set(e.pointerId, [e.clientX, e.clientY]);
       if (pointers.size === 2 && pinch0) { const [a, b] = [...pointers.values()]; s = Math.max(1, Math.min(4, pinch0[1] * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch0[0])); clamp(); apply(); return; }
-      const dx = e.clientX - last[0], dy = e.clientY - last[1]; last = [e.clientX, e.clientY];
+      const dx = e.clientX - last[0], dy = e.clientY - last[1]; last = [e.clientX, e.clientY]; moved += Math.abs(dx) + Math.abs(dy);
       if (frames && s === 1) { if (Math.abs(dx) >= 1) { frame = (frame + (dx > 0 ? -1 : 1) + frames.length) % frames.length; setSrc(frames[frame]); } return; }
       if (s > 1) { x += dx; y += dy; clamp(); apply(); }
     });
-    const up = e => { pointers.delete(e.pointerId); if (pointers.size < 2) pinch0 = null; };
+    const up = e => {
+      const wasSingle = pointers.size === 1 && !pinch0;
+      pointers.delete(e.pointerId); if (pointers.size < 2) pinch0 = null;
+      if (e.type === 'pointerup' && wasSingle && moved < 6 && Date.now() - downAt < 400) gallery.open(gallery.current());
+    };
     stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
     $('#vIn').onclick = () => { stop(); zoom(1.4); };
     $('#vOut').onclick = () => { stop(); zoom(1 / 1.4); };
     $('#vReset').onclick = () => { stop(); reset(); };
     $('#vMotion').onclick = () => { motion ? (stop(), reset()) : start(); };
-    return { load, stop };
+    $('#vExpand').onclick = () => { stop(); gallery.open(gallery.current()); };
+    return { load, stop, show };
+  })();
+
+  // ---------- gallery + expanded view (lightbox) ----------
+  // Slides: Mavs's own product photos (main + extra angles from his Drive) + his related YouTube videos.
+  const gallery = (() => {
+    let slides = [], cur = 0, lbZoom = false, touchX = null;
+    const thumbUrl = s => s.t === 'vid' ? `https://i.ytimg.com/vi/${s.id}/mqdefault.jpg` : img(s.id, 300);
+    function set(p, vids) {
+      slides = [p.img, ...(p.x || [])].map(id => ({ t: 'img', id })).concat(vids.map(v => ({ t: 'vid', id: v.id, title: v.t })));
+      cur = 0; renderThumbs('#pThumbs', 'pt');
+    }
+    function renderThumbs(sel, cls) {
+      $(sel).innerHTML = slides.length > 1 ? slides.map((s, i) => `<button class="${cls} ${i === cur ? 'active' : ''} ${s.t === 'vid' ? 'is-vid' : ''}" data-slide="${i}" aria-label="${s.t === 'vid' ? 'Video' : 'Photo'} ${i + 1}"><img src="${thumbUrl(s)}" alt="" loading="lazy" referrerpolicy="no-referrer"${s.t === 'img' ? ` data-id="${s.id}" data-w="300" onerror="__imgFail(this)"` : ''}>${s.t === 'vid' ? '<span>▶</span>' : ''}</button>`).join('') : '';
+    }
+    function select(i) {
+      const s = slides[i]; if (!s) return;
+      if (s.t === 'vid') return open(i);
+      cur = i; viewer.show(s.id); renderThumbs('#pThumbs', 'pt');
+    }
+    function draw() {
+      const s = slides[cur]; lbZoom = false;
+      $('#lbCount').textContent = `${cur + 1} / ${slides.length}`;
+      $('#lbPrev').hidden = $('#lbNext').hidden = slides.length < 2;
+      if (s.t === 'vid') {
+        $('#lbMedia').innerHTML = `<div class="lb-video"><iframe src="https://www.youtube-nocookie.com/embed/${s.id}?autoplay=1&rel=0&modestbranding=1" title="${esc(s.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
+      } else {
+        $('#lbMedia').innerHTML = `<img class="lb-img" src="${img(s.id, 2000)}" data-id="${s.id}" data-w="2000" alt="${esc(modalP ? modalP.n : '')}" referrerpolicy="no-referrer" onerror="__imgFail(this)" draggable="false">`;
+      }
+      renderThumbs('#lbThumbs', 'lbt');
+      const a = $('#lbThumbs .active'); if (a) a.scrollIntoView({ block: 'nearest', inline: 'center' });
+    }
+    function open(i) {
+      if (!slides.length) return;
+      cur = Math.max(0, Math.min(slides.length - 1, i)); viewer.stop();
+      $('#lbTitle').textContent = modalP ? modalP.n : '';
+      $('#lightbox').hidden = false; document.body.style.overflow = 'hidden'; draw();
+    }
+    function close() {
+      if ($('#lightbox').hidden) return;
+      $('#lightbox').hidden = true; $('#lbMedia').innerHTML = ''; document.body.style.overflow = '';
+      if (slides[cur] && slides[cur].t === 'img') select(cur); else renderThumbs('#pThumbs', 'pt');
+    }
+    const go = d => { cur = (cur + d + slides.length) % slides.length; draw(); };
+    $('#lbPrev').onclick = () => go(-1);
+    $('#lbNext').onclick = () => go(1);
+    $('#lbClose').onclick = close;
+    $('#lightbox').addEventListener('click', e => {
+      const t = e.target.closest('[data-slide]'); if (t) { cur = +t.dataset.slide; return draw(); }
+      if (e.target.id === 'lbStage' || e.target.id === 'lbMedia') return close();
+      const im = e.target.closest('.lb-img'); if (!im) return;
+      lbZoom = !lbZoom; im.classList.toggle('zoomed', lbZoom);
+      if (!lbZoom) im.style.transformOrigin = 'center';
+    });
+    $('#lbMedia').addEventListener('mousemove', e => {
+      const im = $('.lb-img.zoomed'); if (!im) return;
+      const r = im.getBoundingClientRect(); im.style.transformOrigin = `${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`;
+    });
+    $('#lbStage').addEventListener('touchstart', e => { touchX = e.touches.length === 1 ? e.touches[0].clientX : null; }, { passive: true });
+    $('#lbStage').addEventListener('touchend', e => { if (touchX == null || lbZoom) return; const dx = e.changedTouches[0].clientX - touchX; if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1); touchX = null; });
+    document.addEventListener('keydown', e => {
+      if ($('#lightbox').hidden) return;
+      if (e.key === 'ArrowLeft') go(-1); if (e.key === 'ArrowRight') go(1); if (e.key === 'Escape') { e.stopImmediatePropagation(); close(); }
+    }, true);
+    $('#pThumbs').addEventListener('click', e => { const t = e.target.closest('[data-slide]'); if (t) select(+t.dataset.slide); });
+    return { set, open, close, current: () => cur };
   })();
   $('#mPlus').onclick = () => { if (modalQty >= modalP.q) return toast(`Only ${modalP.q} available.`); modalQty++; $('#mQty').textContent = modalQty; };
   $('#mMinus').onclick = () => { modalQty = Math.max(modalQty - 1, 1); $('#mQty').textContent = modalQty; };
@@ -548,7 +620,7 @@
   const VIEWS = ['shop', 'product', 'checkout', 'done', 'track', 'admin'];
   function route() {
     let v = location.hash.slice(1) || 'shop';
-    closeModal();
+    closeModal(); gallery.close();
     const pm = v.match(/^product-(\d+)$/);
     if (pm) { v = renderProduct(+pm[1]) ? 'product' : 'shop'; }
     else if (!VIEWS.includes(v) || v === 'product') v = 'shop';
