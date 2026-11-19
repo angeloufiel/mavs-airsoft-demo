@@ -555,3 +555,6 @@ span.flink:hover{text-decoration:none;color:#c3c7cc}
 .hero-slide .banner-copy{padding-bottom:44px}
 @media (max-width:900px){.hero,.hero-slides{min-height:0}}
 @media (max-width:640px){.hero,.hero-slides{min-height:0}.hero-slide .banner-copy{padding:22px 20px 14px}.hero-slide .banner-img{padding:0 14px 36px}}
+/* v10 fix: incoming slide fades in ON TOP of the outgoing one (no text overlap) */
+.hero-slide{z-index:0;opacity:0;visibility:hidden;transition:opacity 0s .55s,visibility 0s .55s}
+.hero-slide.on{z-index:1;opacity:1;visibility:visible;transition:opacity .5s}
