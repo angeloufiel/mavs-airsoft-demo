@@ -237,6 +237,7 @@
     renderDesc(p);
     const vids = videosFor(p);
     gallery.set(p, vids);
+    $('#mSpecs').innerHTML = specSheetHTML(p, { brand: p.b });
     $('#ptabVideos').hidden = !vids.length;
     $('#ptabVideos').textContent = `Videos (${vids.length})`;
     $('#mVideos').innerHTML = vids.length ? `<p class="muted small">Watch Mavs Airsoft's own review${vids.length > 1 ? 's' : ''} related to this item:</p><div class="m-vlist">${vids.map(v => vidCard(v, 0)).join('')}</div>` : '';
@@ -317,18 +318,7 @@
     const zoom = (f) => { s = Math.max(1, Math.min(4, s * f)); if (s === 1) { x = 0; y = 0; } clamp(); apply(); };
     const reset = () => { s = 1; x = 0; y = 0; apply(); };
     const setSrc = (id) => { im.dataset.id = id; im.dataset.w = 1200; delete im.dataset.tried; im.onerror = () => __imgFail(im); im.src = img(id, 1200); };
-    function stop() { if (motion) cancelAnimationFrame(motion); motion = null; $('#vMotion').setAttribute('aria-pressed', 'false'); $('#vMotion').textContent = '▶ Motion'; }
-    function start() {
-      stop(); $('#vMotion').setAttribute('aria-pressed', 'true'); $('#vMotion').textContent = '❚❚ Motion';
-      const t0 = performance.now();
-      const tick = (t) => {
-        const k = (t - t0) / 1000;
-        if (frames) { frame = Math.floor(k * 10) % frames.length; setSrc(frames[frame]); }
-        else { s = 1.6; const r = stage.getBoundingClientRect(); x = Math.sin(k * 0.6) * r.width * 0.3; y = Math.sin(k * 0.9) * r.height * 0.12; clamp(); apply(); }
-        motion = requestAnimationFrame(tick);
-      };
-      motion = requestAnimationFrame(tick);
-    }
+    function stop() { if (motion) cancelAnimationFrame(motion); motion = null; }
     function load(p) {
       stop(); reset(); frames = Array.isArray(p.spin) && p.spin.length > 1 ? p.spin : null; frame = 0;
       setSrc(frames ? frames[0] : p.img); im.alt = p.n;
@@ -357,7 +347,6 @@
     $('#vIn').onclick = () => { stop(); zoom(1.4); };
     $('#vOut').onclick = () => { stop(); zoom(1 / 1.4); };
     $('#vReset').onclick = () => { stop(); reset(); };
-    $('#vMotion').onclick = () => { motion ? (stop(), reset()) : start(); };
     $('#vExpand').onclick = () => { stop(); gallery.open(gallery.current()); };
     return { load, stop, show };
   })();
@@ -368,22 +357,26 @@
     let slides = [], cur = 0, lbZoom = false, touchX = null;
     const thumbUrl = s => s.t === 'vid' ? `https://i.ytimg.com/vi/${s.id}/mqdefault.jpg` : img(s.id, 300);
     function set(p, vids) {
-      slides = [p.img, ...(p.x || [])].map(id => ({ t: 'img', id })).concat(vids.map(v => ({ t: 'vid', id: v.id, title: v.t })));
+      slides = [p.img, ...(p.x || [])].map(id => ({ t: 'img', id })).concat(vids.map(v => ({ t: 'vid', id: v.id, title: v.t })), [{ t: 'spec', p }]);
       cur = 0; renderThumbs('#pThumbs', 'pt');
     }
     function renderThumbs(sel, cls) {
-      $(sel).innerHTML = slides.length > 1 ? slides.map((s, i) => `<button class="${cls} ${i === cur ? 'active' : ''} ${s.t === 'vid' ? 'is-vid' : ''}" data-slide="${i}" aria-label="${s.t === 'vid' ? 'Video' : 'Photo'} ${i + 1}"><img src="${thumbUrl(s)}" alt="" loading="lazy" referrerpolicy="no-referrer"${s.t === 'img' ? ` data-id="${s.id}" data-w="300" onerror="__imgFail(this)"` : ''}>${s.t === 'vid' ? '<span>▶</span>' : ''}</button>`).join('') : '';
+      $(sel).innerHTML = slides.length > 1 ? slides.map((s, i) => s.t === 'spec'
+        ? `<button class="${cls} is-spec ${i === cur ? 'active' : ''}" data-slide="${i}" aria-label="Specifications"><b>SPECS</b><i></i><i></i><i></i></button>`
+        : `<button class="${cls} ${i === cur ? 'active' : ''} ${s.t === 'vid' ? 'is-vid' : ''}" data-slide="${i}" aria-label="${s.t === 'vid' ? 'Video' : 'Photo'} ${i + 1}"><img src="${thumbUrl(s)}" alt="" loading="lazy" referrerpolicy="no-referrer"${s.t === 'img' ? ` data-id="${s.id}" data-w="300" onerror="__imgFail(this)"` : ''}>${s.t === 'vid' ? '<span>▶</span>' : ''}</button>`).join('') : '';
     }
     function select(i) {
       const s = slides[i]; if (!s) return;
-      if (s.t === 'vid') return open(i);
+      if (s.t !== 'img') return open(i);
       cur = i; viewer.show(s.id); renderThumbs('#pThumbs', 'pt');
     }
     function draw() {
       const s = slides[cur]; lbZoom = false;
       $('#lbCount').textContent = `${cur + 1} / ${slides.length}`;
       $('#lbPrev').hidden = $('#lbNext').hidden = slides.length < 2;
-      if (s.t === 'vid') {
+      if (s.t === 'spec') {
+        $('#lbMedia').innerHTML = `<div class="lb-spec">${specSheetHTML(s.p, { brand: s.p.b })}</div>`;
+      } else if (s.t === 'vid') {
         $('#lbMedia').innerHTML = `<div class="lb-video"><iframe src="https://www.youtube-nocookie.com/embed/${s.id}?autoplay=1&rel=0&modestbranding=1" title="${esc(s.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
       } else {
         $('#lbMedia').innerHTML = `<img class="lb-img" src="${img(s.id, 2000)}" data-id="${s.id}" data-w="2000" alt="${esc(modalP ? modalP.n : '')}" referrerpolicy="no-referrer" onerror="__imgFail(this)" draggable="false">`;

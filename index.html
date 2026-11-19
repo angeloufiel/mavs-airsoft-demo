@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=8">
+  <link rel="stylesheet" href="assets/style.css?v=9">
 </head>
 <body>
 
@@ -157,7 +157,6 @@
                 <button id="vOut" aria-label="Zoom out">−</button>
                 <button id="vIn" aria-label="Zoom in">+</button>
                 <button id="vReset" aria-label="Reset view">⟲</button>
-                <button id="vMotion" aria-pressed="false" title="Auto motion">▶ Motion</button>
                 <button id="vExpand" title="Expanded view">⤢ Expand</button>
               </div>
             </div>
@@ -193,10 +192,12 @@
         <div class="panel pd-tabs">
           <div class="tabbar" role="tablist">
             <button class="ptab active" data-ptab="desc" role="tab">Description</button>
+            <button class="ptab" data-ptab="specs" role="tab">Specifications</button>
             <button class="ptab" data-ptab="videos" role="tab" id="ptabVideos">Videos</button>
             <button class="ptab" data-ptab="ship" role="tab">Shipping &amp; Payment</button>
           </div>
           <div class="ptab-body" data-pbody="desc"><div class="desc" id="mDesc"></div></div>
+          <div class="ptab-body" data-pbody="specs" hidden><div id="mSpecs"></div></div>
           <div class="ptab-body" data-pbody="videos" hidden><div class="m-videos" id="mVideos"></div></div>
           <div class="ptab-body" data-pbody="ship" hidden>
             <div class="ship-grid">
@@ -412,9 +413,10 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="assets/products.js?v=8"></script>
-  <script src="assets/descriptions.js?v=8"></script>
-  <script src="assets/videos.js?v=8"></script>
-  <script src="assets/app.js?v=8"></script>
+  <script src="assets/products.js?v=9"></script>
+  <script src="assets/descriptions.js?v=9"></script>
+  <script src="assets/videos.js?v=9"></script>
+  <script src="assets/specs.js?v=9"></script>
+  <script src="assets/app.js?v=9"></script>
 </body>
 </html>
