@@ -16,7 +16,7 @@
   };
   const img = (id, w = 400) => `https://drive.google.com/thumbnail?id=${id}&sz=w${w}`;
   const imgAlt = (id, w = 400) => `https://lh3.googleusercontent.com/d/${id}=w${w}`;
-  const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="#141512"/><text x="200" y="158" text-anchor="middle" font-family="Arial" font-size="18" fill="#555">No photo</text></svg>');
+  const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="#f2f3f5"/><text x="200" y="158" text-anchor="middle" font-family="Arial" font-size="18" fill="#9aa1a8">No photo</text></svg>');
 
   // Image fallback: Drive thumbnail → googleusercontent → placeholder
   window.__imgFail = el => {
@@ -87,7 +87,7 @@
     saveCart(); toast(`Added: ${p.n}`);
     const cc = $('#cartCount'); cc.classList.remove('bump'); void cc.offsetWidth; cc.classList.add('bump');
   }
-  function renderCartCount() { $('#cartCount').textContent = cart.reduce((s, c) => s + c.qty, 0); }
+  function renderCartCount() { $('#cartCount').textContent = cart.reduce((s, c) => s + c.qty, 0); $('#hdrTotal').textContent = peso(cartTotal()); }
 
   function renderCart() {
     const box = $('#cartItems');
@@ -150,6 +150,7 @@
         <span class="pname">${esc(p.n)}</span>
         <span class="ptag">${esc(describeProduct(p).tag)}</span>
         <span class="price ${p.p == null ? 'na' : ''}">${p.p == null ? 'Ask for price' : peso(p.p)}</span>
+        <span class="cstock ${out ? 'no' : isLow(p) ? 'low' : 'ok'}">${out ? 'Out of stock' : isLow(p) ? `Only ${p.q} left` : 'In stock'}</span>
       </div>
       <div class="card-act"><button class="btn ${out ? 'btn-ghost' : 'btn-red'} btn-sm" data-add="${p.id}" ${out ? 'disabled' : ''}>${out ? 'Sold out' : 'Add to cart'}</button></div>
     </article>`;
@@ -162,7 +163,8 @@
     $('#resultTitle').textContent = state.q ? `Results for “${state.q}”` : state.cat === 'All' ? 'All products' : state.cat;
     $('#resultCount').textContent = `${list.length} item${list.length === 1 ? '' : 's'}`;
     $('#loadMore').hidden = list.length <= state.limit;
-    $$('.chip').forEach(c => c.classList.toggle('active', c.dataset.cat === state.cat));
+    $$('.cat-item, .cn-btn').forEach(c => c.classList.toggle('active', c.dataset.cat === state.cat));
+    $('#crumbCat').textContent = state.q ? `Search: “${state.q}”` : state.cat === 'All' ? 'All products' : state.cat;
     const n = [state.brand, state.min, state.max, state.stock, state.sort !== 'featured'].filter(Boolean).length;
     $('#filterCount').textContent = n ? `(${n})` : '';
   }
@@ -171,7 +173,14 @@
     const counts = {};
     PRODUCTS.forEach(p => { counts[p.c] = (counts[p.c] || 0) + 1; if (p.new) counts['New Arrivals'] = (counts['New Arrivals'] || 0) + 1; });
     const cats = ['All', ...CAT_ORDER.filter(c => counts[c])];
-    $('#chips').innerHTML = cats.map(c => `<button class="chip" role="tab" data-cat="${esc(c)}">${esc(c)}<small>${c === 'All' ? PRODUCTS.length : counts[c]}</small></button>`).join('');
+    $('#chips').innerHTML = cats.map(c => `<button class="cat-item" role="tab" data-cat="${esc(c)}"><span>${esc(c)}</span><small>${c === 'All' ? PRODUCTS.length : counts[c]}</small></button>`).join('');
+    const NAV = ['All', 'New Arrivals', 'AEG Rifles', 'GBB Pistols', 'GBB Rifles', 'Sniper Rifles', 'CO2 Guns', 'Accessories', 'AEG Parts', 'GBB Parts', 'HPA', 'BBs & Gas', 'Tactical Gear', 'Inventory Sale'].filter(c => c === 'All' || counts[c]);
+    $('#catNav').innerHTML = NAV.map(c => `<button class="cn-btn ${c === 'Inventory Sale' ? 'cn-sale' : c === 'New Arrivals' ? 'cn-new' : ''}" data-cat="${esc(c)}">${c === 'All' ? '☰ All products' : esc(c)}</button>`).join('');
+    const TILES = ['AEG Rifles', 'GBB Pistols', 'GBB Rifles', 'Sniper Rifles', 'Accessories', 'AEG Parts', 'Tactical Gear', 'BBs & Gas', 'HPA', 'CO2 Guns', 'Batteries', 'GBB Parts'].filter(c => counts[c]);
+    $('#catTiles').innerHTML = TILES.map(c => {
+      const p = PRODUCTS.find(x => x.c === c && inStock(x)) || PRODUCTS.find(x => x.c === c);
+      return `<button class="ctile" data-cat="${esc(c)}"><span class="ctile-img loading">${imgTag(p, 400)}</span><b>${esc(c)}</b><small>${counts[c]} items</small></button>`;
+    }).join('');
   }
   function renderBrands() {
     const brands = [...new Set(PRODUCTS.map(p => p.b).filter(Boolean))].sort();
@@ -182,8 +191,9 @@
 
   function setCat(cat) {
     state.cat = cat; state.limit = 24; renderShop();
-    if (location.hash !== '#shop' && location.hash !== '') location.hash = 'shop';
-    $('#chips').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (location.hash !== '#shop' && location.hash !== '') { location.hash = 'shop'; }
+    $('#filters').classList.remove('open');
+    setTimeout(() => $('#shopTop').scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
   }
   document.addEventListener('click', e => {
     const chip = e.target.closest('[data-cat]'); if (chip) return setCat(chip.dataset.cat);
@@ -219,14 +229,20 @@
 
   // ---------- product modal ----------
   let modalP = null, modalQty = 1;
-  function openProduct(id) {
-    const p = byId[id]; if (!p) return;
+  function openProduct(id) { if (byId[id]) location.hash = 'product-' + id; }
+  function renderProduct(id) {
+    const p = byId[id]; if (!p) return false;
     modalP = p; modalQty = 1;
     viewer.load(p);
     renderDesc(p);
     const vids = videosFor(p);
-    $('#mVideos').hidden = !vids.length;
-    $('#mVideos').innerHTML = vids.length ? `<h4>🎬 Related video${vids.length > 1 ? 's' : ''} from Mavs Airsoft</h4><div class="m-vlist">${vids.map(v => vidCard(v, 0)).join('')}</div>` : '';
+    $('#ptabVideos').hidden = !vids.length;
+    $('#ptabVideos').textContent = `Videos (${vids.length})`;
+    $('#mVideos').innerHTML = vids.length ? `<p class="muted small">Watch Mavs Airsoft's own review${vids.length > 1 ? 's' : ''} related to this item:</p><div class="m-vlist">${vids.map(v => vidCard(v, 0)).join('')}</div>` : '';
+    setPtab('desc');
+    $('#pId').textContent = 'MAVS-' + String(p.id).padStart(4, '0');
+    $('#mBrand').href = '#shop'; $('#mBrand').dataset.cat = p.c;
+    $('#pCrumbs').innerHTML = `<a href="#shop" data-cat="All">Home</a> <span>›</span> <a href="#shop" data-cat="${esc(p.c)}">${esc(p.c)}</a> <span>›</span> <b>${esc(p.n)}</b>`;
     $('#mBrand').textContent = p.b || p.c;
     $('#mName').textContent = p.n;
     $('#mPrice').textContent = p.p == null ? 'Ask for price' : peso(p.p);
@@ -234,14 +250,22 @@
     const ok = inStock(p);
     $('#mStock').textContent = !ok ? '● Sold out — message Mavs for restock' : isLow(p) ? `● Only ${p.q} left — order soon` : `● In stock — ${p.q} available`;
     $('#mStock').className = 'stock ' + (!ok ? 'no' : isLow(p) ? 'low' : 'ok');
-    $('#mAdd').disabled = !ok; $('#mQty').textContent = 1;
-    const rel = PRODUCTS.filter(x => x.id !== p.id && x.b && x.b === p.b).slice(0, 6);
-    $('#mRelated').innerHTML = rel.length ? rel.map(r => `<div class="rel" data-open="${r.id}">${imgTag(r, 300)}<div>${esc(r.n)}</div></div>`).join('') : '<p class="muted small">—</p>';
-    $('.rel-title').hidden = !rel.length;
-    $('#modal').hidden = false; document.body.style.overflow = 'hidden';
-    $('.modal-card').scrollTop = 0;
+    $('#mAdd').disabled = !ok; $('#mBuy').disabled = !ok; $('#mQty').textContent = 1;
+    let rel = PRODUCTS.filter(x => x.id !== p.id && x.b && x.b === p.b);
+    let relTitle = `More from ${p.b}`;
+    if (rel.length < 2) { rel = PRODUCTS.filter(x => x.id !== p.id && x.c === p.c); relTitle = `More ${p.c}`; }
+    rel = rel.sort((a, b) => inStock(b) - inStock(a)).slice(0, 4);
+    $('#mRelated').innerHTML = rel.map(card).join('');
+    $('.rel-title').textContent = relTitle;
+    $('.rel-sec').hidden = !rel.length;
+    return true;
   }
-  const closeModal = () => { $('#modal').hidden = true; document.body.style.overflow = ''; viewer.stop(); };
+  const closeModal = () => viewer.stop();
+  function setPtab(name) {
+    $$('.ptab').forEach(t => t.classList.toggle('active', t.dataset.ptab === name));
+    $$('.ptab-body').forEach(b => b.hidden = b.dataset.pbody !== name);
+  }
+  $$('.ptab').forEach(t => t.onclick = () => setPtab(t.dataset.ptab));
 
   // ---------- YouTube videos ----------
   const VIDS = window.VIDEOS || [];
@@ -330,12 +354,12 @@
     $('#vMotion').onclick = () => { motion ? (stop(), reset()) : start(); };
     return { load, stop };
   })();
-  $$('[data-close]').forEach(b => b.onclick = closeModal);
   $('#mPlus').onclick = () => { if (modalQty >= modalP.q) return toast(`Only ${modalP.q} available.`); modalQty++; $('#mQty').textContent = modalQty; };
   $('#mMinus').onclick = () => { modalQty = Math.max(modalQty - 1, 1); $('#mQty').textContent = modalQty; };
-  $('#mAdd').onclick = () => { addToCart(modalP.id, modalQty); closeModal(); };
+  $('#mAdd').onclick = () => addToCart(modalP.id, modalQty);
+  $('#mBuy').onclick = () => { addToCart(modalP.id, modalQty); if (cart.some(c => c.id === modalP.id)) location.hash = 'checkout'; };
   $('#mAsk').onclick = () => copy(`Hi Boss Mavs! Available pa po ba ang ${modalP.n}${modalP.p ? ` (${peso(modalP.p)})` : ''}? Salamat po!`, 'Inquiry copied — paste it in Messenger.');
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!$('#vmodal').hidden) return closeVideo(); closeModal(); closeCart(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!$('#vmodal').hidden) return closeVideo(); closeCart(); $('#filters').classList.remove('open'); } });
 
   // ---------- checkout ----------
   const radio = n => $(`input[name="${n}"]:checked`).value;
@@ -521,10 +545,13 @@
   });
 
   // ---------- router ----------
-  const VIEWS = ['shop', 'checkout', 'done', 'track', 'admin'];
+  const VIEWS = ['shop', 'product', 'checkout', 'done', 'track', 'admin'];
   function route() {
     let v = location.hash.slice(1) || 'shop';
-    if (!VIEWS.includes(v)) v = 'shop';
+    closeModal();
+    const pm = v.match(/^product-(\d+)$/);
+    if (pm) { v = renderProduct(+pm[1]) ? 'product' : 'shop'; }
+    else if (!VIEWS.includes(v) || v === 'product') v = 'shop';
     if (v === 'checkout' && !cart.length) { v = 'shop'; history.replaceState(null, '', '#shop'); toast('Add items to your cart first.'); }
     if (v === 'done' && !lastOrder) v = 'shop';
     VIEWS.forEach(x => $('#view-' + x).hidden = x !== v);

@@ -4,116 +4,218 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mavs Airsoft — Online Shop (Demo)</title>
-  <meta name="description" content="Demo online ordering system for Mavs Airsoft: browse units, parts and gear, add to cart, checkout and track orders.">
+  <meta name="description" content="Demo online shop for Mavs Airsoft Ph: airsoft rifles, pistols, parts and gear with cart, checkout, order tracking and inventory.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=5">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css?v=6">
 </head>
 <body>
 
+  <!-- Promo strip -->
+  <div class="promo-strip">
+    <div class="wrap promo-in">
+      <span>🚚 Nationwide shipping via LBC &amp; J&amp;T</span>
+      <span>🏪 Store pickup available</span>
+      <span>✅ Authentic units &amp; parts</span>
+      <span>▶ Reviews on our YouTube channel</span>
+    </div>
+  </div>
+
   <!-- Demo notice -->
   <div class="demo-bar" id="demoBar">
-    <span><b>DEMO PREVIEW</b> · Ginawa ni Angelou Fiel para sa Mavs Airsoft. Real prices & photos from your Drive catalog. Walang totoong order na mapapadala.</span>
+    <span><b>DEMO PREVIEW</b> · Ginawa ni Angelou Fiel para sa Mavs Airsoft. Real prices &amp; photos from your Drive catalog. Walang totoong order na mapapadala.</span>
     <button class="demo-x" id="demoClose" aria-label="Close notice">✕</button>
   </div>
 
   <!-- Header -->
-  <header class="topbar">
-    <div class="wrap topbar-in">
+  <header class="header">
+    <div class="wrap header-in">
       <a href="#shop" class="logo" aria-label="Mavs Airsoft home">
         <span class="logo-mark">M</span>
-        <span class="logo-text">MAVS<em>AIRSOFT</em></span>
+        <span class="logo-text">MAVS<em>AIRSOFT</em><small>PH</small></span>
       </a>
-      <div class="search">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4a6 6 0 1 0 3.9 10.6l4.7 4.7 1.4-1.4-4.7-4.7A6 6 0 0 0 10 4Zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"/></svg>
-        <input id="search" type="search" placeholder="Search units, parts, gear… (e.g. Krytac, VSR, 0.25)" autocomplete="off">
-      </div>
-      <nav class="nav">
-        <a href="#track" class="nav-link">Track order</a>
-        <a href="#admin" class="nav-link nav-admin">Admin</a>
-        <button class="cart-btn" id="cartBtn" aria-label="Open cart">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM5.2 4l.4 2H21l-2.2 8.5a2 2 0 0 1-1.9 1.5H8.3a2 2 0 0 1-2-1.6L4.2 4H2V2h3.8l.4 2Z"/></svg>
-          <span class="cart-count" id="cartCount">0</span>
+      <form class="search" role="search" onsubmit="return false">
+        <input id="search" type="search" placeholder="Search units, parts, gear… e.g. Krytac, VSR, 0.25 BB" autocomplete="off" aria-label="Search products">
+        <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4a6 6 0 1 0 3.9 10.6l4.7 4.7 1.4-1.4-4.7-4.7A6 6 0 0 0 10 4Zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"/></svg></button>
+      </form>
+      <nav class="hdr-actions" aria-label="Account">
+        <a href="#track" class="hdr-link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v8H3zM14 10h4l3 3v2h-7zM6.5 18.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm11 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg><span>Track<br><b>Order</b></span></a>
+        <a href="#admin" class="hdr-link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.4 0-8 2.2-8 5v2h16v-2c0-2.8-3.6-5-8-5Z"/></svg><span>Owner<br><b>Admin</b></span></a>
+        <button class="hdr-cart" id="cartBtn" aria-label="Open cart">
+          <span class="cart-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM5.2 4l.4 2H21l-2.2 8.5a2 2 0 0 1-1.9 1.5H8.3a2 2 0 0 1-2-1.6L4.2 4H2V2h3.8l.4 2Z"/></svg><span class="cart-count" id="cartCount">0</span></span>
+          <span class="cart-lbl">Cart<br><b id="hdrTotal">₱0</b></span>
         </button>
       </nav>
+    </div>
+    <div class="catnav">
+      <div class="wrap catnav-in" id="catNav" aria-label="Categories"></div>
     </div>
   </header>
 
   <main>
     <!-- SHOP VIEW -->
     <section class="view" id="view-shop">
-      <div class="hero">
-        <div class="wrap hero-in">
-          <div class="hero-copy">
-            <p class="eyebrow">Airsoft units · Parts · Gear</p>
-            <h1>Order your next build<br><span>without the back-and-forth.</span></h1>
-            <p class="lead">Browse the full stock list with real-time availability, add to cart, and send your order in one go. Mavs confirms, you pay, we ship.</p>
-            <div class="hero-cta">
-              <button class="btn btn-red" data-cat="AEG Rifles">Shop rifles</button>
-              <button class="btn btn-ghost" data-cat="New Arrivals">New arrivals</button>
+      <div class="wrap">
+        <!-- Hero banner -->
+        <div class="banner-grid">
+          <div class="banner" data-open="1">
+            <div class="banner-copy">
+              <span class="tag">FEATURED UNIT</span>
+              <h1>Krytac Trident MKII <span>SPR-M</span></h1>
+              <p>Scout rifle with a 16" barrel, 8mm bearing gearbox &amp; MOSFET. Built for medium–long range.</p>
+              <div class="banner-price">₱22,000 <button class="btn btn-red">View unit →</button></div>
             </div>
+            <div class="banner-img"><img src="https://drive.google.com/thumbnail?id=1e141w6fIbgEtrGW4bXtfSly1y7-z673T&amp;sz=w1200" alt="Krytac Trident MKII SPR-M" referrerpolicy="no-referrer"></div>
           </div>
-          <div class="hero-stats">
-            <div><b id="statItems">0</b><span>items in this demo</span></div>
-            <div><b>3,100+</b><span>photos in the Drive catalog</span></div>
-            <div><b id="statBrands">0</b><span>categories</span></div>
+          <div class="promo-tiles">
+            <button class="ptile pt-new" data-cat="New Arrivals"><b>New Arrivals</b><span>Fresh stock this month →</span></button>
+            <button class="ptile pt-sale" data-cat="Inventory Sale"><b>Inventory Sale</b><span>Discounted units →</span></button>
+            <button class="ptile pt-bb" data-cat="BBs &amp; Gas"><b>BBs &amp; Gas</b><span>Restock your consumables →</span></button>
           </div>
         </div>
-      </div>
 
-      <div class="wrap">
-        <section class="yt-sec" aria-label="Latest videos from Mavs Airsoft on YouTube">
-          <div class="yt-head">
+        <!-- Stats strip -->
+        <div class="stats-strip">
+          <div><b id="statItems">0</b><span>items in this demo</span></div>
+          <div><b>3,100+</b><span>photos in the Drive catalog</span></div>
+          <div><b id="statBrands">0</b><span>categories</span></div>
+          <div><b>30</b><span>YouTube reviews linked</span></div>
+        </div>
+
+        <!-- YouTube -->
+        <section class="panel yt-sec" aria-label="Latest videos from Mavs Airsoft on YouTube">
+          <div class="sec-head">
             <h2><span class="yt-dot">▶</span> Latest from Mavs Airsoft Ph</h2>
-            <a href="https://www.youtube.com/@mavsairsoft/videos" target="_blank" rel="noopener" class="yt-all">See all on YouTube →</a>
+            <a href="https://www.youtube.com/@mavsairsoft/videos" target="_blank" rel="noopener" class="sec-link">See all on YouTube →</a>
           </div>
           <div class="yt-row" id="ytRow"></div>
         </section>
-        <div class="chips" id="chips" role="tablist" aria-label="Categories"></div>
 
+        <!-- Shop by category -->
+        <section class="cat-sec" aria-label="Shop by category">
+          <div class="sec-head"><h2>Shop by category</h2></div>
+          <div class="cat-tiles" id="catTiles"></div>
+        </section>
+
+        <!-- Listing -->
+        <div class="crumbs" id="shopTop"><a href="#shop" data-cat="All">Home</a> <span>›</span> <b id="crumbCat">All products</b></div>
         <div class="shop-grid">
-          <button class="filters-toggle" id="filtersToggle" aria-expanded="false" aria-controls="filters">⚙ Filters &amp; sort <span id="filterCount"></span></button>
+          <button class="filters-toggle" id="filtersToggle" aria-expanded="false" aria-controls="filters">☰ Categories &amp; filters <span id="filterCount"></span></button>
           <aside class="filters" id="filters">
-            <h3>Filters</h3>
-            <label class="f-label" for="fBrand">Brand / type</label>
-            <select id="fBrand"><option value="">All</option></select>
-
-            <label class="f-label">Price (₱)</label>
-            <div class="price-row">
-              <input id="fMin" type="number" min="0" step="500" placeholder="Min">
-              <span>–</span>
-              <input id="fMax" type="number" min="0" step="500" placeholder="Max">
+            <div class="f-block">
+              <h3>Categories</h3>
+              <div class="cat-list" id="chips" role="tablist" aria-label="Categories"></div>
             </div>
-
-            <label class="f-check"><input type="checkbox" id="fStock"> In stock only</label>
-
-            <label class="f-label" for="fSort">Sort by</label>
-            <select id="fSort">
-              <option value="featured">Featured</option>
-              <option value="low">Price: low to high</option>
-              <option value="high">Price: high to low</option>
-              <option value="az">Name: A–Z</option>
-            </select>
-            <button class="btn btn-ghost btn-sm full" id="fReset">Reset filters</button>
+            <div class="f-block">
+              <h3>Refine</h3>
+              <label class="f-label" for="fBrand">Brand / type</label>
+              <select id="fBrand"><option value="">All</option></select>
+              <label class="f-label">Price (₱)</label>
+              <div class="price-row">
+                <input id="fMin" type="number" min="0" step="500" placeholder="Min">
+                <span>–</span>
+                <input id="fMax" type="number" min="0" step="500" placeholder="Max">
+              </div>
+              <label class="f-check"><input type="checkbox" id="fStock"> In stock only</label>
+              <button class="btn btn-ghost btn-sm full" id="fReset">Reset filters</button>
+            </div>
           </aside>
 
-          <div>
+          <div class="results">
             <div class="result-bar">
-              <h2 id="resultTitle">All products</h2>
-              <span id="resultCount" class="muted"></span>
+              <div>
+                <h2 id="resultTitle">All products</h2>
+                <span id="resultCount" class="muted"></span>
+              </div>
+              <label class="sort">Sort by
+                <select id="fSort">
+                  <option value="featured">Featured</option>
+                  <option value="low">Price: low to high</option>
+                  <option value="high">Price: high to low</option>
+                  <option value="az">Name: A–Z</option>
+                </select>
+              </label>
             </div>
             <div class="grid" id="grid"></div>
-            <div class="load-more-wrap"><button class="btn btn-ghost" id="loadMore">Load more</button></div>
+            <div class="load-more-wrap"><button class="btn btn-ghost" id="loadMore">Load more products</button></div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- PRODUCT VIEW -->
+    <section class="view" id="view-product" hidden>
+      <div class="wrap">
+        <div class="crumbs" id="pCrumbs"></div>
+        <div class="pd panel">
+          <div class="pd-media">
+            <div class="viewer" id="viewer">
+              <div class="viewer-stage" id="vStage"><img id="mImg" alt="" referrerpolicy="no-referrer" draggable="false"></div>
+              <span class="badge-360" id="v360" hidden>360°</span>
+              <div class="viewer-tools">
+                <button id="vOut" aria-label="Zoom out">−</button>
+                <button id="vIn" aria-label="Zoom in">+</button>
+                <button id="vReset" aria-label="Reset view">⟲</button>
+                <button id="vMotion" aria-pressed="false" title="Auto motion">▶ Motion</button>
+              </div>
+            </div>
+            <p class="viewer-hint" id="vHint">Scroll or pinch to zoom · drag to look around · double-click to zoom</p>
+          </div>
+
+          <div class="pd-info">
+            <a class="pd-brand" id="mBrand" href="#shop"></a>
+            <h1 id="mName"></h1>
+            <p class="pd-meta">Item ID: <span id="pId"></span> · Category: <span id="mCat"></span></p>
+            <div class="buybox">
+              <p class="pd-price" id="mPrice"></p>
+              <p id="mStock" class="stock"></p>
+              <div class="qty-row">
+                <label class="qty-lbl">Qty</label>
+                <div class="qty"><button id="mMinus" aria-label="Decrease">−</button><span id="mQty">1</span><button id="mPlus" aria-label="Increase">+</button></div>
+              </div>
+              <button class="btn btn-red btn-lg full" id="mAdd">🛒 Add to cart</button>
+              <button class="btn btn-dark btn-lg full" id="mBuy">Buy now</button>
+              <button class="btn btn-ghost full" id="mAsk">💬 Copy inquiry for Messenger</button>
+              <ul class="trust">
+                <li>🚚 Ships nationwide via LBC / J&amp;T. Fee quoted after confirmation</li>
+                <li>🏪 Free store pickup</li>
+                <li>💳 GCash, bank transfer or cash on pickup</li>
+                <li>🪪 18+ only. Valid ID required on release</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="panel pd-tabs">
+          <div class="tabbar" role="tablist">
+            <button class="ptab active" data-ptab="desc" role="tab">Description</button>
+            <button class="ptab" data-ptab="videos" role="tab" id="ptabVideos">Videos</button>
+            <button class="ptab" data-ptab="ship" role="tab">Shipping &amp; Payment</button>
+          </div>
+          <div class="ptab-body" data-pbody="desc"><div class="desc" id="mDesc"></div></div>
+          <div class="ptab-body" data-pbody="videos" hidden><div class="m-videos" id="mVideos"></div></div>
+          <div class="ptab-body" data-pbody="ship" hidden>
+            <div class="ship-grid">
+              <div><h4>📦 Shipping</h4><p>Nationwide via LBC or J&amp;T Express. Mavs confirms stock and quotes the shipping fee before you pay. Airsoft units are packed securely.</p></div>
+              <div><h4>💳 Payment</h4><p>GCash or bank transfer after confirmation, or cash on store pickup. Send your proof of payment through Messenger.</p></div>
+              <div><h4>🪪 Requirements</h4><p>Buyers must be 18+. Airsoft rifles and pistols are regulated in the Philippines. Mavs will advise on the requirements upon release.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <section class="rel-sec">
+          <div class="sec-head"><h2 class="rel-title">More from this brand</h2></div>
+          <div class="grid grid-rel" id="mRelated"></div>
+        </section>
       </div>
     </section>
 
     <!-- CHECKOUT VIEW -->
     <section class="view" id="view-checkout" hidden>
       <div class="wrap narrow">
-        <a href="#shop" class="back">← Continue shopping</a>
+        <div class="crumbs"><a href="#shop">Home</a> <span>›</span> <b>Checkout</b></div>
         <h1 class="page-title">Checkout</h1>
         <div class="checkout">
           <form id="checkoutForm" novalidate>
@@ -173,7 +275,7 @@
         <h1 class="page-title">Order placed!</h1>
         <p class="lead">Your order number is <b id="doneNo" class="mono"></b>.<br>Mavs Airsoft will message you to confirm stock and payment.</p>
         <pre class="order-text" id="doneText"></pre>
-        <div class="hero-cta center">
+        <div class="btn-row center">
           <button class="btn btn-red" id="copyOrder">Copy order for Messenger</button>
           <a class="btn btn-ghost" id="doneTrack" href="#track">Track this order</a>
         </div>
@@ -183,7 +285,7 @@
     <!-- TRACK VIEW -->
     <section class="view" id="view-track" hidden>
       <div class="wrap narrow">
-        <a href="#shop" class="back">← Back to shop</a>
+        <div class="crumbs"><a href="#shop">Home</a> <span>›</span> <b>Track order</b></div>
         <h1 class="page-title">Track your order</h1>
         <form id="trackForm" class="track-form" novalidate>
           <input id="tNo" placeholder="Order number (e.g. MAVS-261118-4821)" required>
@@ -242,64 +344,44 @@
   </main>
 
   <footer class="footer">
-    <div class="wrap footer-in">
+    <div class="wrap footer-grid">
       <div>
-        <div class="logo small-logo"><span class="logo-mark">M</span><span class="logo-text">MAVS<em>AIRSOFT</em></span></div>
-        <p class="muted small">This demo shows 415 sample items from the Mavs Airsoft Google Drive catalog. The full system can import all 3,000+ photos with their prices.</p>
+        <div class="logo small-logo"><span class="logo-mark">M</span><span class="logo-text">MAVS<em>AIRSOFT</em><small>PH</small></span></div>
+        <p class="small">Airsoft units, parts and gear, with honest reviews on our YouTube channel.</p>
+        <a class="yt-btn" href="https://www.youtube.com/@mavsairsoft/videos" target="_blank" rel="noopener">▶ Mavs Airsoft Ph on YouTube</a>
       </div>
-      <div class="credit">
-        <span class="muted small">Demo designed &amp; built by</span>
-        <a href="https://angeloufiel.github.io/" target="_blank" rel="noopener"><b>Angelou Fiel</b> · angeloufiel.github.io</a>
+      <div>
+        <h4>Shop</h4>
+        <button class="flink" data-cat="AEG Rifles">AEG Rifles</button>
+        <button class="flink" data-cat="GBB Pistols">GBB Pistols</button>
+        <button class="flink" data-cat="Sniper Rifles">Sniper Rifles</button>
+        <button class="flink" data-cat="Tactical Gear">Tactical Gear</button>
+      </div>
+      <div>
+        <h4>Customer service</h4>
+        <a class="flink" href="#track">Track my order</a>
+        <a class="flink" href="#checkout">Checkout</a>
+        <span class="flink">Shipping: LBC / J&amp;T</span>
+        <span class="flink">Payment: GCash / Bank / Cash</span>
+      </div>
+      <div>
+        <h4>About this demo</h4>
+        <p class="small">415 sample items from the Mavs Airsoft Google Drive catalog. The full system can import all 3,000+ photos with prices.</p>
+        <p class="small">Designed &amp; built by <a href="https://angeloufiel.github.io/" target="_blank" rel="noopener"><b>Angelou Fiel</b></a></p>
       </div>
     </div>
+    <div class="footer-bottom"><div class="wrap">© 2026 Mavs Airsoft Ph · Demo preview · For buyers 18+ only</div></div>
   </footer>
-
-  <!-- Product modal -->
-  <div class="modal" id="modal" hidden>
-    <div class="modal-back" data-close></div>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mName">
-      <button class="modal-x" data-close aria-label="Close">✕</button>
-      <div class="modal-grid">
-        <div class="viewer" id="viewer">
-          <div class="viewer-stage" id="vStage"><img id="mImg" alt="" referrerpolicy="no-referrer" draggable="false"></div>
-          <span class="badge-360" id="v360" hidden>360°</span>
-          <div class="viewer-tools">
-            <button id="vOut" aria-label="Zoom out">−</button>
-            <button id="vIn" aria-label="Zoom in">+</button>
-            <button id="vReset" aria-label="Reset view">⟲</button>
-            <button id="vMotion" aria-pressed="false" title="Auto motion">▶ Motion</button>
-          </div>
-          <p class="viewer-hint" id="vHint">Scroll or pinch to zoom · drag to look around · double-click to zoom</p>
-        </div>
-        <div class="modal-info">
-          <p class="eyebrow" id="mBrand"></p>
-          <h2 id="mName"></h2>
-          <p class="m-price" id="mPrice"></p>
-          <p id="mStock" class="stock"></p>
-          <div class="qty-row">
-            <div class="qty"><button id="mMinus" aria-label="Decrease">−</button><span id="mQty">1</span><button id="mPlus" aria-label="Increase">+</button></div>
-            <button class="btn btn-red" id="mAdd">Add to cart</button>
-          </div>
-          <button class="btn btn-ghost btn-sm" id="mAsk">Copy inquiry for Messenger</button>
-          <div class="desc" id="mDesc"></div>
-          <div class="m-videos" id="mVideos" hidden></div>
-          <p class="muted small">Category: <span id="mCat"></span></p>
-          <h4 class="rel-title">More from this brand</h4>
-          <div class="related" id="mRelated"></div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Cart drawer -->
   <div class="drawer" id="drawer" hidden>
     <div class="modal-back" data-close-cart></div>
     <aside class="drawer-card" aria-label="Cart">
-      <div class="drawer-head"><h3>Your cart</h3><button class="modal-x static" data-close-cart aria-label="Close cart">✕</button></div>
+      <div class="drawer-head"><h3>Your cart</h3><button class="icon-x" data-close-cart aria-label="Close cart">✕</button></div>
       <div class="drawer-body" id="cartItems"></div>
       <div class="drawer-foot">
         <div class="sum-line total"><span>Subtotal</span><b id="cartSub">₱0</b></div>
-        <button class="btn btn-red btn-lg full" id="goCheckout">Checkout</button>
+        <button class="btn btn-red btn-lg full" id="goCheckout">Proceed to checkout</button>
       </div>
     </aside>
   </div>
@@ -308,7 +390,7 @@
   <div class="vmodal" id="vmodal" hidden>
     <div class="modal-back" data-close-video></div>
     <div class="vmodal-card" role="dialog" aria-modal="true" aria-labelledby="vTitle">
-      <button class="modal-x" data-close-video aria-label="Close video">✕</button>
+      <button class="icon-x float" data-close-video aria-label="Close video">✕</button>
       <div class="vframe" id="vFrame"></div>
       <div class="vmeta"><b id="vTitle"></b><a id="vYt" target="_blank" rel="noopener">Watch on YouTube ↗</a></div>
     </div>
@@ -316,9 +398,9 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="assets/products.js?v=5"></script>
-  <script src="assets/descriptions.js?v=5"></script>
-  <script src="assets/videos.js?v=5"></script>
-  <script src="assets/app.js?v=5"></script>
+  <script src="assets/products.js?v=6"></script>
+  <script src="assets/descriptions.js?v=6"></script>
+  <script src="assets/videos.js?v=6"></script>
+  <script src="assets/app.js?v=6"></script>
 </body>
 </html>

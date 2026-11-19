@@ -1,5 +1,7 @@
 # Mavs Airsoft: Online Shop Demo
 
+**Design (v6):** a light retail layout. It has a sticky header with a big search bar and cart total, a dark category menu, a featured banner with promo tiles, category tiles, a sidebar of categories and filters next to the product grid, and a full product page with breadcrumbs, a buy box, tabs and related items. It works on phones, tablets and desktops.
+
 This is a clickable demo of an online ordering system for Mavs Airsoft. Angelou Fiel built it to pitch the idea to Boss Mavs.
 
 ## What's inside
