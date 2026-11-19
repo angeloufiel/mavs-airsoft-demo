@@ -1,9 +1,9 @@
-/* Product descriptions for the Mavs Airsoft demo.
+/* Product descriptions for the MVS Airsoft demo.
  * Built from three layers, in this order:
  *   1) SPECIFIC  — model-specific write-ups checked against manufacturer/retailer listings
  *   2) MODEL     — what the platform/model type is good for (from the product name)
  *   3) BRAND + CATEGORY — what the brand is known for and who the category suits
- * Rule: no made-up specs. Exact FPS/specs vary per batch/upgrade → "confirm with Mavs".
+ * Rule: no made-up specs. Exact FPS/specs vary per batch/upgrade → "confirm with MVS".
  */
 (function () {
   'use strict';
@@ -76,7 +76,7 @@
     [/KAR98|M1903|M14|G980/, 'Classic/vintage rifle: great for history-themed games and collectors who like wood-and-steel looks.'],
     [/HI-?CAPA|5\.1|4\.3|3\.8|CAPTAIN|GOLDMATCH|1911|STACCATO|2011|EB1911|BRONTO|VELO|ALLOSAURUS|LIMCAT/, 'Hi-Capa/1911 family: the most upgradeable pistol platform in airsoft. It is the standard for IPSC and speed shooting.'],
     [/G1[7-9]|G4[25]|GLOCK|R17|P10C|TP9|SFX|P320|USP|HK45|M92|D\.?EAGLE|DESERT EAGLE|SSP|TTI|VIPER|ORION|MASTER|AAP01|CARNOTAURUS|ICP|STP45|CZ|PIT|BABAYAGA|CURVE/, 'Modern sidearm: a reliable backup to your primary. Most of these share magazines and holsters with other models in their family.'],
-    [/\.177/, 'CO2 .177 (4.5mm) model: shoots 4.5mm BBs/pellets, not 6mm airsoft BBs. Ask Mavs whether it suits your use.'],
+    [/\.177/, 'CO2 .177 (4.5mm) model: shoots 4.5mm BBs/pellets, not 6mm airsoft BBs. Ask MVS whether it suits your use.'],
     [/REVOLVER|RHINO|APR00|CLPD/, 'CO2 revolver: realistic shell-loading and strong gas efficiency. A crowd favorite for its looks.']
   ];
 
@@ -93,9 +93,9 @@
     [/GEARSET|12:1|13:1|16:1/, 'Gear set: the gear ratio sets the balance between speed and torque. Match it with your motor and spring.'],
     [/IB\[|INNER|6\.01/, 'Tight-bore inner barrel: can improve consistency and range when paired with a good hop-up.'],
     [/HOP|CHAMBER/, 'Hop-up chamber: controls BB backspin. A better hop gives more range and consistency.'],
-    [/GBOX|SHELL|CYLINDER|SPRING|TRIGGER|MAGCATCH|NOZZLE|DTU|POWER UP|FIX|LOADING/, 'Upgrade/replacement part for builds and repairs. Ask Mavs to confirm it fits your model.'],
+    [/GBOX|SHELL|CYLINDER|SPRING|TRIGGER|MAGCATCH|NOZZLE|DTU|POWER UP|FIX|LOADING/, 'Upgrade/replacement part for builds and repairs. Ask MVS to confirm it fits your model.'],
     [/MAG|DRUM|900R|1200R|450R|30R|40R|42R/, 'Spare magazine: more ammo on the field means fewer trips back to reload.'],
-    [/X3500|X310|XCORTECH|AT2000|CHRONO/, 'FPS/tracer electronics: depending on the model, it checks your FPS or lights up glow BBs. Ask Mavs which one fits your needs.'],
+    [/X3500|X310|XCORTECH|AT2000|CHRONO/, 'FPS/tracer electronics: depending on the model, it checks your FPS or lights up glow BBs. Ask MVS which one fits your needs.'],
     [/SCOPE|VTR|3-9|3-12/, 'Rifle scope: magnified aiming for longer shots. Ideal on DMR and sniper builds.'],
     [/SIGHT|RISER|MOUNT|HYDRA|CARRY HANDLE|SIDEMOUNT/, 'Sight/mount: puts your optic at the right height for faster, more comfortable aiming.'],
     [/PLATE|CARRIER|PC\[|CHEST|D3CR/, 'Load-bearing gear: carry mags and essentials where you can reach them fast.'],
@@ -201,7 +201,7 @@
     const part = first(PART, N);
     return {
       tag: part ? part.split(':')[0] : p.c,
-      text: part ? cap(part.split(': ').slice(1).join(': ')) : `${p.c} item. Ask Mavs about compatibility with your setup.`,
+      text: part ? cap(part.split(': ').slice(1).join(': ')) : `${p.c} item. Ask MVS about compatibility with your setup.`,
       points: [], brand, specific: false
     };
   };

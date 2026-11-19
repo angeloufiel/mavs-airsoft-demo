@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mavs Airsoft — Online Shop (Demo)</title>
-  <meta name="description" content="Demo online shop for Mavs Airsoft Ph: airsoft rifles, pistols, parts and gear with cart, checkout, order tracking and inventory.">
+  <title>MVS Airsoft — Online Shop (Demo)</title>
+  <meta name="description" content="Demo online shop for MVS Airsoft PH: airsoft rifles, pistols, parts and gear with cart, checkout, order tracking and inventory.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=11">
+  <link rel="stylesheet" href="assets/style.css?v=12">
 </head>
 <body>
 
@@ -18,22 +18,22 @@
       <span>🚚 Nationwide shipping via LBC &amp; J&amp;T</span>
       <span>🏪 Store pickup available</span>
       <span>✅ Authentic units &amp; parts</span>
-      <span>▶ Reviews on our YouTube channel</span>
+      <span>🔔 Order updates via Messenger</span>
     </div>
   </div>
 
   <!-- Demo notice -->
   <div class="demo-bar" id="demoBar">
-    <span><b>DEMO PREVIEW</b> · Ginawa ni Angelou Fiel para sa Mavs Airsoft. Real prices &amp; photos from your Drive catalog. Walang totoong order na mapapadala.</span>
+    <span><b>DEMO PREVIEW</b> · Sample online shop system ni Angelou Fiel. Walang totoong order na mapapadala.</span>
     <button class="demo-x" id="demoClose" aria-label="Close notice">✕</button>
   </div>
 
   <!-- Header -->
   <header class="header">
     <div class="wrap header-in">
-      <a href="#shop" class="logo" aria-label="Mavs Airsoft home">
+      <a href="#shop" class="logo" aria-label="MVS Airsoft home">
         <span class="logo-mark">M</span>
-        <span class="logo-text">MAVS<em>AIRSOFT</em><small>PH</small></span>
+        <span class="logo-text">MVS<em>AIRSOFT</em><small>PH</small></span>
       </a>
       <form class="search" role="search" onsubmit="return false">
         <input id="search" type="search" placeholder="Search units, parts, gear… e.g. Krytac, VSR, 0.25 BB" autocomplete="off" aria-label="Search products">
@@ -75,9 +75,9 @@
         <!-- Stats strip -->
         <div class="stats-strip">
           <div><b id="statItems">0</b><span>items in this demo</span></div>
-          <div><b>3,100+</b><span>photos in the Drive catalog</span></div>
+          <div><b>24/7</b><span>online ordering</span></div>
           <div><b id="statBrands">0</b><span>categories</span></div>
-          <div><b>30</b><span>YouTube reviews linked</span></div>
+          <div><b>Auto</b><span>low-stock alerts</span></div>
         </div>
 
         <!-- Evike-style product rows -->
@@ -93,10 +93,10 @@
         </section>
 
         <!-- YouTube -->
-        <section class="panel yt-sec" aria-label="Latest videos from Mavs Airsoft on YouTube">
+        <section class="panel yt-sec" aria-label="Latest videos" hidden>
           <div class="sec-head">
-            <h2><span class="yt-dot">▶</span> Latest from Mavs Airsoft Ph</h2>
-            <a href="https://www.youtube.com/@mavsairsoft/videos" target="_blank" rel="noopener" class="sec-link">See all on YouTube →</a>
+            <h2><span class="yt-dot">▶</span> Latest videos</h2>
+            <a href="#shop" class="sec-link">See all videos →</a>
           </div>
           <div class="yt-row" id="ytRow"></div>
         </section>
@@ -222,9 +222,9 @@
           <div class="ptab-body" data-pbody="videos" hidden><div class="m-videos" id="mVideos"></div></div>
           <div class="ptab-body" data-pbody="ship" hidden>
             <div class="ship-grid">
-              <div><h4>📦 Shipping</h4><p>Nationwide via LBC or J&amp;T Express. Mavs confirms stock and quotes the shipping fee before you pay. Airsoft units are packed securely.</p></div>
+              <div><h4>📦 Shipping</h4><p>Nationwide via LBC or J&amp;T Express. MVS confirms stock and quotes the shipping fee before you pay. Airsoft units are packed securely.</p></div>
               <div><h4>💳 Payment</h4><p>GCash or bank transfer after confirmation, or cash on store pickup. Send your proof of payment through Messenger.</p></div>
-              <div><h4>🪪 Requirements</h4><p>Buyers must be 18+. Airsoft rifles and pistols are regulated in the Philippines. Mavs will advise on the requirements upon release.</p></div>
+              <div><h4>🪪 Requirements</h4><p>Buyers must be 18+. Airsoft rifles and pistols are regulated in the Philippines. MVS will advise on the requirements upon release.</p></div>
             </div>
           </div>
         </div>
@@ -249,7 +249,7 @@
                 <div class="field"><label for="cName">Full name *</label><input id="cName" required autocomplete="name"></div>
                 <div class="field"><label for="cPhone">Mobile number *</label><input id="cPhone" required inputmode="numeric" placeholder="09XXXXXXXXX" autocomplete="tel"></div>
               </div>
-              <div class="field"><label for="cFb">Facebook / Messenger name</label><input id="cFb" placeholder="So Mavs can message you"></div>
+              <div class="field"><label for="cFb">Facebook / Messenger name</label><input id="cFb" placeholder="So MVS can message you"></div>
             </fieldset>
 
             <fieldset>
@@ -265,7 +265,7 @@
             <fieldset>
               <legend>3 · Payment</legend>
               <div class="opts">
-                <label class="opt"><input type="radio" name="payment" value="GCash" checked><span><b>GCash</b><small>Send proof after Mavs confirms</small></span></label>
+                <label class="opt"><input type="radio" name="payment" value="GCash" checked><span><b>GCash</b><small>Send proof after MVS confirms</small></span></label>
                 <label class="opt"><input type="radio" name="payment" value="Bank transfer"><span><b>Bank transfer</b><small>BDO / BPI / etc.</small></span></label>
                 <label class="opt"><input type="radio" name="payment" value="Cash on pickup"><span><b>Cash on pickup</b><small>Store pickup only</small></span></label>
               </div>
@@ -278,7 +278,7 @@
             </fieldset>
             <p class="form-error" id="formError" role="alert"></p>
             <button class="btn btn-red btn-lg full" type="submit">Place order</button>
-            <p class="muted small center">Mavs will confirm stock and shipping fee before you pay.</p>
+            <p class="muted small center">MVS will confirm stock and shipping fee before you pay.</p>
           </form>
 
           <aside class="summary">
@@ -297,7 +297,7 @@
       <div class="wrap narrow center">
         <div class="done-badge">✓</div>
         <h1 class="page-title">Order placed!</h1>
-        <p class="lead">Your order number is <b id="doneNo" class="mono"></b>.<br>Mavs Airsoft will message you to confirm stock and payment.</p>
+        <p class="lead">Your order number is <b id="doneNo" class="mono"></b>.<br>MVS Airsoft will message you to confirm stock and payment.</p>
         <pre class="order-text" id="doneText"></pre>
         <div class="btn-row center">
           <button class="btn btn-red" id="copyOrder">Copy order for Messenger</button>
@@ -312,11 +312,11 @@
         <div class="crumbs"><a href="#shop">Home</a> <span>›</span> <b>Track order</b></div>
         <h1 class="page-title">Track your order</h1>
         <form id="trackForm" class="track-form" novalidate>
-          <input id="tNo" placeholder="Order number (e.g. MAVS-261118-4821)" required>
+          <input id="tNo" placeholder="Order number (e.g. MVS-261118-4821)" required>
           <input id="tPhone" placeholder="Mobile number used" inputmode="numeric" required>
           <button class="btn btn-red" type="submit">Track</button>
         </form>
-        <p class="muted small">Tip: in this demo, try a sample order: <button class="linkish" id="tryDemo">MAVS-DEMO-0001 / 09171234567</button></p>
+        <p class="muted small">Tip: in this demo, try a sample order: <button class="linkish" id="tryDemo">MVS-DEMO-0001 / 09171234567</button></p>
         <div id="trackResult"></div>
       </div>
     </section>
@@ -327,7 +327,7 @@
         <div class="admin-head">
           <div>
             <p class="eyebrow">Owner dashboard · preview</p>
-            <h1 class="page-title">Hi Boss Mavs 👋</h1>
+            <h1 class="page-title">Hi Boss 👋</h1>
           </div>
           <div class="admin-actions">
             <div class="bell-wrap">
@@ -370,9 +370,9 @@
   <footer class="footer">
     <div class="wrap footer-grid">
       <div>
-        <div class="logo small-logo"><span class="logo-mark">M</span><span class="logo-text">MAVS<em>AIRSOFT</em><small>PH</small></span></div>
-        <p class="small">Airsoft units, parts and gear, with honest reviews on our YouTube channel.</p>
-        <a class="yt-btn" href="https://www.youtube.com/@mavsairsoft/videos" target="_blank" rel="noopener">▶ Mavs Airsoft Ph on YouTube</a>
+        <div class="logo small-logo"><span class="logo-mark">M</span><span class="logo-text">MVS<em>AIRSOFT</em><small>PH</small></span></div>
+        <p class="small">Airsoft units, parts and gear, delivered nationwide.</p>
+        
       </div>
       <div>
         <h4>Shop</h4>
@@ -390,11 +390,11 @@
       </div>
       <div>
         <h4>About this demo</h4>
-        <p class="small">415 sample items from the Mavs Airsoft Google Drive catalog. The full system can import all 3,000+ photos with prices.</p>
+        <p class="small">Sample catalog for the demo. The full system imports the shop's own products, photos and prices.</p>
         <p class="small">Designed &amp; built by <a href="https://angeloufiel.github.io/" target="_blank" rel="noopener"><b>Angelou Fiel</b></a></p>
       </div>
     </div>
-    <div class="footer-bottom"><div class="wrap">© 2026 Mavs Airsoft Ph · Demo preview · For buyers 18+ only</div></div>
+    <div class="footer-bottom"><div class="wrap">© 2026 MVS Airsoft PH · Demo preview · For buyers 18+ only</div></div>
   </footer>
 
   <!-- Cart drawer -->
@@ -434,10 +434,10 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="assets/products.js?v=11"></script>
-  <script src="assets/descriptions.js?v=11"></script>
-  <script src="assets/videos.js?v=11"></script>
-  <script src="assets/specs.js?v=11"></script>
-  <script src="assets/app.js?v=11"></script>
+  <script src="assets/products.js?v=12"></script>
+  <script src="assets/descriptions.js?v=12"></script>
+  <script src="assets/videos.js?v=12"></script>
+  <script src="assets/specs.js?v=12"></script>
+  <script src="assets/app.js?v=12"></script>
 </body>
 </html>

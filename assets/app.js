@@ -1,4 +1,4 @@
-/* Mavs Airsoft — demo shop logic (vanilla JS, no build step).
+/* MVS Airsoft — demo shop logic (vanilla JS, no build step).
  * Data: window.PRODUCTS (assets/products.js)
  * Storage: localStorage (demo only — the real system uses PHP + MySQL).
  */
@@ -11,8 +11,8 @@
   const peso = n => '₱' + Number(n).toLocaleString('en-PH');
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const store = {
-    get(k, d) { try { const v = localStorage.getItem('mavs_' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
-    set(k, v) { try { localStorage.setItem('mavs_' + k, JSON.stringify(v)); } catch { /* storage blocked */ } }
+    get(k, d) { try { const v = localStorage.getItem('mvs_' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem('mvs_' + k, JSON.stringify(v)); } catch { /* storage blocked */ } }
   };
   const img = (id, w = 400) => `https://drive.google.com/thumbnail?id=${id}&sz=w${w}`;
   const imgAlt = (id, w = 400) => `https://lh3.googleusercontent.com/d/${id}=w${w}`;
@@ -38,7 +38,7 @@
 
   // ---------- data ----------
   // ---------- inventory (stock quantities) ----------
-  // Demo quantities are generated (sold-out items = 0). In the real system Mavs enters the actual counts.
+  // Demo quantities are generated (sold-out items = 0). In the real system MVS enters the actual counts.
   const qtyStore = store.get('qty', {});
   const seed = id => { let h = Math.imul(id, 2654435761) >>> 0; h = (h ^ (h >>> 13)) >>> 0; return h % 100; };
   const baseQty = p => (!p.s || p.p == null) ? 0 : p.id === 1 ? 4 : (r => r < 12 ? 1 + (r % 3) : 4 + (r % 12))(seed(p.id));
@@ -55,7 +55,7 @@
     alerts.unshift({ t: Date.now(), id: p.id, type, msg, read: false });
     alerts.length = Math.min(alerts.length, 50); store.set('alerts', alerts);
     toast('🔔 ' + msg);
-    try { if ('Notification' in window && Notification.permission === 'granted') new Notification('Mavs Airsoft · Inventory', { body: msg }); } catch { /* not supported */ }
+    try { if ('Notification' in window && Notification.permission === 'granted') new Notification('MVS Airsoft · Inventory', { body: msg }); } catch { /* not supported */ }
     renderBell();
   }
   function setQty(p, q, reason) {
@@ -301,9 +301,9 @@
     $('#mSpecs').innerHTML = specSheetHTML(p, { brand: p.b });
     $('#ptabVideos').hidden = !vids.length;
     $('#ptabVideos').textContent = `Videos (${vids.length})`;
-    $('#mVideos').innerHTML = vids.length ? `<p class="muted small">Watch Mavs Airsoft's own review${vids.length > 1 ? 's' : ''} related to this item:</p><div class="m-vlist">${vids.map(v => vidCard(v, 0)).join('')}</div>` : '';
+    $('#mVideos').innerHTML = vids.length ? `<p class="muted small">Watch the shop's own review${vids.length > 1 ? 's' : ''} related to this item:</p><div class="m-vlist">${vids.map(v => vidCard(v, 0)).join('')}</div>` : '';
     setPtab('desc');
-    $('#pId').textContent = 'MAVS-' + String(p.id).padStart(4, '0');
+    $('#pId').textContent = 'MVS-' + String(p.id).padStart(4, '0');
     $('#mBrand').href = '#shop'; $('#mBrand').dataset.cat = p.c;
     $('#pCrumbs').innerHTML = `<a href="#shop" data-cat="All">Home</a> <span>›</span> <a href="#shop" data-cat="${esc(p.c)}">${esc(p.c)}</a> <span>›</span> <b>${esc(p.n)}</b>`;
     $('#mBrand').textContent = p.b || p.c;
@@ -311,7 +311,7 @@
     $('#mPrice').textContent = p.p == null ? 'Ask for price' : peso(p.p);
     $('#mCat').textContent = p.c;
     const ok = inStock(p);
-    $('#mStock').textContent = !ok ? '● Sold out — message Mavs for restock' : isLow(p) ? `● Only ${p.q} left — order soon` : `● In stock — ${p.q} available`;
+    $('#mStock').textContent = !ok ? '● Sold out — message MVS for restock' : isLow(p) ? `● Only ${p.q} left — order soon` : `● In stock — ${p.q} available`;
     $('#mStock').className = 'stock ' + (!ok ? 'no' : isLow(p) ? 'low' : 'ok');
     $('#mAdd').disabled = !ok; $('#mBuy').disabled = !ok; $('#mQty').textContent = 1;
     let rel = PRODUCTS.filter(x => x.id !== p.id && x.b && x.b === p.b);
@@ -342,7 +342,7 @@
     for (const [re, list] of (window.PRODUCT_VIDEOS || [])) if (re.test(key)) list.forEach(id => { if (!ids.includes(id) && vidById[id]) ids.push(id); });
     return ids.slice(0, 3).map(id => vidById[id]);
   }
-  function renderVideoRow() { $('#ytRow').innerHTML = VIDS.slice(0, 10).map((v, i) => vidCard(v, i)).join(''); }
+  function renderVideoRow() { const sec = document.querySelector('.yt-sec'); if (sec) sec.hidden = !VIDS.length; $('#ytRow').innerHTML = VIDS.slice(0, 10).map((v, i) => vidCard(v, i)).join(''); }
   function playVideo(id) {
     const v = vidById[id]; if (!v) return;
     $('#vFrame').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1" title="${esc(v.t)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
@@ -362,7 +362,7 @@
       <p>${esc(d.text)}</p>
       ${d.points.length ? `<ul class="desc-points">${d.points.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
       ${d.brand ? `<p class="desc-brand"><b>About ${esc(p.b)}:</b> ${esc(d.brand)}</p>` : ''}
-      <p class="desc-note">${d.specific ? 'Based on the manufacturer\'s published features.' : 'General overview.'} Exact FPS and specs can vary per unit/version, so confirm with Mavs before buying.</p>`;
+      <p class="desc-note">${d.specific ? 'Based on the manufacturer\'s published features.' : 'General overview.'} Exact FPS and specs can vary per unit/version, so confirm with MVS before buying.</p>`;
   }
 
   // ---------- image viewer: zoom, pan, auto-motion, optional 360° ----------
@@ -413,7 +413,7 @@
   })();
 
   // ---------- gallery + expanded view (lightbox) ----------
-  // Slides: Mavs's own product photos (main + extra angles from his Drive) + his related YouTube videos.
+  // Slides: MVS's own product photos (main + extra angles from his Drive) + his related YouTube videos.
   const gallery = (() => {
     let slides = [], cur = 0, lbZoom = false, touchX = null;
     const thumbUrl = s => s.t === 'vid' ? `https://i.ytimg.com/vi/${s.id}/mqdefault.jpg` : img(s.id, 300);
@@ -484,7 +484,7 @@
   $('#mMinus').onclick = () => { modalQty = Math.max(modalQty - 1, 1); $('#mQty').textContent = modalQty; };
   $('#mAdd').onclick = () => addToCart(modalP.id, modalQty);
   $('#mBuy').onclick = () => { addToCart(modalP.id, modalQty); if (cart.some(c => c.id === modalP.id)) location.hash = 'checkout'; };
-  $('#mAsk').onclick = () => copy(`Hi Boss Mavs! Available pa po ba ang ${modalP.n}${modalP.p ? ` (${peso(modalP.p)})` : ''}? Salamat po!`, 'Inquiry copied — paste it in Messenger.');
+  $('#mAsk').onclick = () => copy(`Hi Boss! Available pa po ba ang ${modalP.n}${modalP.p ? ` (${peso(modalP.p)})` : ''}? Salamat po!`, 'Inquiry copied — paste it in Messenger.');
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!$('#vmodal').hidden) return closeVideo(); closeCart(); $('#filters').classList.remove('open'); } });
 
   // ---------- checkout ----------
@@ -523,7 +523,7 @@
     if (short) { err.textContent = `Pasensya po, ${byId[short.id].q} na lang ang natitirang ${byId[short.id].n}. Paki-adjust ang cart.`; return; }
 
     const d = new Date();
-    const no = `MAVS-${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const no = `MVS-${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${Math.floor(1000 + Math.random() * 9000)}`;
     const order = {
       no, date: d.toISOString(), name, phone, fb: $('#cFb').value.trim(), delivery: radio('delivery'), address: pickup ? '' : addr,
       payment: radio('payment'), notes: $('#cNotes').value.trim(), status: 0,
@@ -550,15 +550,15 @@
     $('#doneText').textContent = orderText(o);
     location.hash = 'done';
   }
-  $('#copyOrder').onclick = () => lastOrder && copy(orderText(lastOrder), 'Order copied — paste it to Mavs on Messenger.');
+  $('#copyOrder').onclick = () => lastOrder && copy(orderText(lastOrder), 'Order copied — paste it to MVS on Messenger.');
   $('#doneTrack').onclick = () => { if (lastOrder) setTimeout(() => { $('#tNo').value = lastOrder.no; $('#tPhone').value = lastOrder.phone; doTrack(); }, 0); };
 
   // ---------- tracking ----------
   const STATUSES = ['Pending', 'Confirmed', 'Paid', 'Packed', 'Shipped / Ready', 'Completed'];
   const SAMPLE = [
-    { no: 'MAVS-DEMO-0001', sample: true, date: new Date(Date.now() - 864e5 * 2).toISOString(), name: 'Juan Dela Cruz', phone: '09171234567', delivery: 'LBC', address: 'Brgy. San Jose, Pagadian City', payment: 'GCash', status: 4, notes: '', items: [{ id: 1, n: 'TRIDENT MKII SPR M', p: 22000, qty: 1 }], total: 22000 },
-    { no: 'MAVS-DEMO-0002', sample: true, date: new Date(Date.now() - 864e5).toISOString(), name: 'Mark Santos', phone: '09281112222', delivery: 'Store pickup', address: '', payment: 'Cash on pickup', status: 1, notes: 'Black color please', items: [{ id: 0, n: 'BUSHIDO 0.25 BB', p: 650, qty: 2 }], total: 1300 },
-    { no: 'MAVS-DEMO-0003', sample: true, date: new Date().toISOString(), name: 'Ana Reyes', phone: '09998887777', delivery: 'J&T Express', address: 'Ozamiz City', payment: 'Bank transfer', status: 0, notes: '', items: [{ id: 0, n: 'TM 5.1 HICAPA', p: 10000, qty: 1 }], total: 10000 }
+    { no: 'MVS-DEMO-0001', sample: true, date: new Date(Date.now() - 864e5 * 2).toISOString(), name: 'Juan Dela Cruz', phone: '09171234567', delivery: 'LBC', address: 'Brgy. San Jose, Pagadian City', payment: 'GCash', status: 4, notes: '', items: [{ id: 1, n: 'TRIDENT MKII SPR M', p: 22000, qty: 1 }], total: 22000 },
+    { no: 'MVS-DEMO-0002', sample: true, date: new Date(Date.now() - 864e5).toISOString(), name: 'Mark Santos', phone: '09281112222', delivery: 'Store pickup', address: '', payment: 'Cash on pickup', status: 1, notes: 'Black color please', items: [{ id: 0, n: 'BUSHIDO 0.25 BB', p: 650, qty: 2 }], total: 1300 },
+    { no: 'MVS-DEMO-0003', sample: true, date: new Date().toISOString(), name: 'Ana Reyes', phone: '09998887777', delivery: 'J&T Express', address: 'Ozamiz City', payment: 'Bank transfer', status: 0, notes: '', items: [{ id: 0, n: 'TM 5.1 HICAPA', p: 10000, qty: 1 }], total: 10000 }
   ];
   const allOrders = () => [...store.get('orders', []), ...SAMPLE.map(s => ({ ...s, status: store.get('sampleStatus', {})[s.no] ?? s.status }))];
 
@@ -577,7 +577,7 @@
     </div>`;
   }
   $('#trackForm').addEventListener('submit', e => { e.preventDefault(); doTrack(); });
-  $('#tryDemo').onclick = () => { $('#tNo').value = 'MAVS-DEMO-0001'; $('#tPhone').value = '09171234567'; doTrack(); };
+  $('#tryDemo').onclick = () => { $('#tNo').value = 'MVS-DEMO-0001'; $('#tPhone').value = '09171234567'; doTrack(); };
 
   // ---------- admin preview ----------
   function renderAdmin() {
@@ -606,7 +606,7 @@
   $('#adminOrders').addEventListener('change', e => {
     const no = e.target.dataset.order; if (!no) return;
     const v = +e.target.value;
-    if (no.startsWith('MAVS-DEMO')) { const m = store.get('sampleStatus', {}); m[no] = v; store.set('sampleStatus', m); }
+    if (no.startsWith('MVS-DEMO')) { const m = store.get('sampleStatus', {}); m[no] = v; store.set('sampleStatus', m); }
     else { const os = store.get('orders', []); const o = os.find(x => x.no === no); if (o) o.status = v; store.set('orders', os); }
     toast(`${no} → ${STATUSES[v]}`); renderAdmin();
   });
