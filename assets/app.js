@@ -189,6 +189,67 @@
     $('#statItems').textContent = PRODUCTS.length;
   }
 
+  // ---------- Evike-style home: hero slider + product rows + brands ----------
+  const HERO = [
+    { id: 1, tag: 'FEATURED UNIT', t: ['Krytac Trident MKII', 'SPR-M'], d: 'Scout rifle with a 16" barrel, 8mm bearing gearbox & MOSFET. Built for medium–long range.' },
+    { id: 265, tag: 'GBB RIFLE', t: ['G&G MGCR 556', '7"'], d: 'Compact gas blowback rifle with real recoil and bolt lock. Pang-CQB na may kick.' },
+    { id: 405, tag: 'HPA', t: ['ARES HPA', '009'], d: 'Air-powered consistency: stable FPS and crisp trigger response, all day.' },
+    { id: 339, tag: 'RESTOCK', t: ['Bushido', '0.25 BBs'], d: 'Quality seamless BBs for accurate shots. Huwag maubusan bago ang next game.' }
+  ].filter(h => byId[h.id]);
+  let heroI = 0, heroT = null;
+  function renderHero() {
+    $('#heroSlides').innerHTML = HERO.map((h, i) => { const p = byId[h.id]; return `
+      <div class="banner hero-slide ${i === 0 ? 'on' : ''}" data-open="${p.id}" role="group" aria-label="Slide ${i + 1} of ${HERO.length}">
+        <div class="banner-copy"><span class="tag">${esc(h.tag)}</span><h1>${esc(h.t[0])} <span>${esc(h.t[1])}</span></h1><p>${esc(h.d)}</p>
+          <div class="banner-price">${p.p == null ? 'Ask for price' : peso(p.p)} <button class="btn btn-red">View unit →</button></div></div>
+        <div class="banner-img">${imgTag(p, 1200)}</div>
+      </div>`; }).join('');
+    $('#heroDots').innerHTML = HERO.map((h, i) => `<button class="${i === 0 ? 'on' : ''}" data-hero="${i}" aria-label="Go to slide ${i + 1}"></button>`).join('');
+    heroPlay();
+  }
+  function heroGo(i) {
+    heroI = (i + HERO.length) % HERO.length;
+    $$('.hero-slide').forEach((el, k) => el.classList.toggle('on', k === heroI));
+    $$('#heroDots button').forEach((el, k) => el.classList.toggle('on', k === heroI));
+    heroPlay();
+  }
+  function heroPlay() { clearInterval(heroT); if (HERO.length > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) heroT = setInterval(() => heroGo(heroI + 1), 6000); }
+  $('#heroPrev').onclick = e => { e.stopPropagation(); heroGo(heroI - 1); };
+  $('#heroNext').onclick = e => { e.stopPropagation(); heroGo(heroI + 1); };
+  $('#heroDots').onclick = e => { const b = e.target.closest('[data-hero]'); if (b) { e.stopPropagation(); heroGo(+b.dataset.hero); } };
+  $('#hero').addEventListener('mouseenter', () => clearInterval(heroT));
+  $('#hero').addEventListener('mouseleave', heroPlay);
+  let hx = null;
+  $('#hero').addEventListener('touchstart', e => { hx = e.touches[0].clientX; }, { passive: true });
+  $('#hero').addEventListener('touchend', e => { if (hx == null) return; const dx = e.changedTouches[0].clientX - hx; hx = null; if (Math.abs(dx) > 40) heroGo(heroI + (dx < 0 ? 1 : -1)); });
+
+  // Minimal Evike-style card: photo, brand + name, price
+  const rcard = p => `<article class="rcard" data-open="${p.id}">
+      <div class="thumb loading">${imgTag(p, 400)}${p.sale ? '<span class="badge b-sale">Sale</span>' : p.new ? '<span class="badge b-new">New</span>' : ''}</div>
+      <span class="rname">${p.b && !p.n.toUpperCase().startsWith(p.b.toUpperCase()) ? `<b>${esc(p.b)}</b> ` : ''}${esc(p.n)}</span>
+      <span class="rprice">${p.p == null ? 'Ask for price' : peso(p.p)}</span>
+    </article>`;
+  function renderRows() {
+    const ok = p => inStock(p);
+    const newest = PRODUCTS.filter(p => p.new && ok(p)).slice(0, 15);
+    const seen = new Set();
+    const feat = PRODUCTS.filter(p => ok(p) && /AEG Rifles|GBB Rifles|GBB Pistols|Sniper Rifles|HPA/.test(p.c))
+      .sort((a, b) => b.p - a.p).filter(p => { const k = p.b || p.n; if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 15);
+    const pop = [...PRODUCTS.filter(p => p.sale && ok(p)), ...PRODUCTS.filter(p => ok(p) && /BBs & Gas|Batteries/.test(p.c))].slice(0, 15);
+    $('#rowNew').innerHTML = newest.map(rcard).join('');
+    $('#rowFeat').innerHTML = feat.map(rcard).join('');
+    $('#rowPop').innerHTML = pop.map(rcard).join('');
+    const counts = {}; PRODUCTS.forEach(p => { if (p.b) counts[p.b] = (counts[p.b] || 0) + 1; });
+    $('#brandStrip').innerHTML = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 14)
+      .map(([b, n]) => `<button class="brand-chip" data-brand="${esc(b)}"><b>${esc(b)}</b><small>${n} items</small></button>`).join('');
+  }
+  document.addEventListener('click', e => {
+    const nav = e.target.closest('[data-row]');
+    if (nav) { const r = $('#' + nav.dataset.row); r.scrollBy({ left: +nav.dataset.dir * r.clientWidth * 0.9, behavior: 'smooth' }); return; }
+    const br = e.target.closest('[data-brand]');
+    if (br) { state.brand = br.dataset.brand; $('#fBrand').value = br.dataset.brand; setCat('All'); }
+  });
+
   function setCat(cat) {
     state.cat = cat; state.limit = 24; renderShop();
     if (location.hash !== '#shop' && location.hash !== '') { location.hash = 'shop'; }
@@ -631,5 +692,5 @@
   $('#demoClose').onclick = () => { $('#demoBar').hidden = true; store.set('demoClosed', true); };
 
   // ---------- init ----------
-  renderVideoRow(); renderChips(); renderBrands(); renderBell(); renderShop(); renderCartCount(); syncCheckout(); route();
+  renderHero(); renderRows(); renderVideoRow(); renderChips(); renderBrands(); renderBell(); renderShop(); renderCartCount(); syncCheckout(); route();
 })();

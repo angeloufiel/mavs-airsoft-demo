@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=9">
+  <link rel="stylesheet" href="assets/style.css?v=10">
 </head>
 <body>
 
@@ -59,14 +59,11 @@
       <div class="wrap">
         <!-- Hero banner -->
         <div class="banner-grid">
-          <div class="banner" data-open="1">
-            <div class="banner-copy">
-              <span class="tag">FEATURED UNIT</span>
-              <h1>Krytac Trident MKII <span>SPR-M</span></h1>
-              <p>Scout rifle with a 16" barrel, 8mm bearing gearbox &amp; MOSFET. Built for medium–long range.</p>
-              <div class="banner-price">₱22,000 <button class="btn btn-red">View unit →</button></div>
-            </div>
-            <div class="banner-img"><img src="https://drive.google.com/thumbnail?id=1e141w6fIbgEtrGW4bXtfSly1y7-z673T&amp;sz=w1200" alt="Krytac Trident MKII SPR-M" referrerpolicy="no-referrer"></div>
+          <div class="hero" id="hero" aria-roledescription="carousel" aria-label="Featured units">
+            <div class="hero-slides" id="heroSlides"></div>
+            <button class="hero-arrow prev" id="heroPrev" aria-label="Previous slide">‹</button>
+            <button class="hero-arrow next" id="heroNext" aria-label="Next slide">›</button>
+            <div class="hero-dots" id="heroDots"></div>
           </div>
           <div class="promo-tiles">
             <button class="ptile pt-new" data-cat="New Arrivals"><b>New Arrivals</b><span>Fresh stock this month →</span></button>
@@ -83,6 +80,18 @@
           <div><b>30</b><span>YouTube reviews linked</span></div>
         </div>
 
+        <!-- Evike-style product rows -->
+        <section class="prow-sec" aria-label="Hot new arrivals">
+          <div class="prow-head"><h2>Hot New Arrivals</h2><span class="prow-sep">|</span><button class="prow-link" data-cat="New Arrivals">Shop All New Arrivals</button>
+            <div class="prow-nav"><button data-row="rowNew" data-dir="-1" aria-label="Scroll left">‹</button><button data-row="rowNew" data-dir="1" aria-label="Scroll right">›</button></div></div>
+          <div class="prow" id="rowNew"></div>
+        </section>
+        <section class="prow-sec" aria-label="Featured products">
+          <div class="prow-head"><h2>Featured Products</h2>
+            <div class="prow-nav"><button data-row="rowFeat" data-dir="-1" aria-label="Scroll left">‹</button><button data-row="rowFeat" data-dir="1" aria-label="Scroll right">›</button></div></div>
+          <div class="prow" id="rowFeat"></div>
+        </section>
+
         <!-- YouTube -->
         <section class="panel yt-sec" aria-label="Latest videos from Mavs Airsoft on YouTube">
           <div class="sec-head">
@@ -90,6 +99,18 @@
             <a href="https://www.youtube.com/@mavsairsoft/videos" target="_blank" rel="noopener" class="sec-link">See all on YouTube →</a>
           </div>
           <div class="yt-row" id="ytRow"></div>
+        </section>
+
+        <section class="prow-sec" aria-label="Popular items">
+          <div class="prow-head"><h2>Popular Items</h2><span class="prow-sep">|</span><button class="prow-link" data-cat="Inventory Sale">Shop Epic Deals</button>
+            <div class="prow-nav"><button data-row="rowPop" data-dir="-1" aria-label="Scroll left">‹</button><button data-row="rowPop" data-dir="1" aria-label="Scroll right">›</button></div></div>
+          <div class="prow" id="rowPop"></div>
+        </section>
+
+        <!-- Shop by brand -->
+        <section class="brand-sec" aria-label="Shop by brand">
+          <div class="sec-head"><h2>Shop by brand</h2></div>
+          <div class="brand-strip" id="brandStrip"></div>
         </section>
 
         <!-- Shop by category -->
@@ -413,10 +434,10 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="assets/products.js?v=9"></script>
-  <script src="assets/descriptions.js?v=9"></script>
-  <script src="assets/videos.js?v=9"></script>
-  <script src="assets/specs.js?v=9"></script>
-  <script src="assets/app.js?v=9"></script>
+  <script src="assets/products.js?v=10"></script>
+  <script src="assets/descriptions.js?v=10"></script>
+  <script src="assets/videos.js?v=10"></script>
+  <script src="assets/specs.js?v=10"></script>
+  <script src="assets/app.js?v=10"></script>
 </body>
 </html>
